@@ -6,7 +6,7 @@
   <title>ZeusTV — Live</title>
   <meta name="description" content="ZeusTV — Διαδικτυακό τηλεοπτικό κανάλι" />
 
-  <!-- Google Font: Geologica -->
+  <!-- Geologica -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -214,11 +214,6 @@
       box-shadow: 0 10px 30px rgba(74,163,255,.18);
     }
 
-    .hint{
-      font-size:12px;
-      color: var(--muted);
-    }
-
     /* -------- PLAYER -------- */
     .playerHeader{
       display:flex; align-items:center; justify-content:space-between;
@@ -247,10 +242,13 @@
       aspect-ratio: 16 / 9;
       width:100%;
     }
-    video{
+
+    /* ✅ Kick player iframe */
+    #kickPlayer{
       width:100%;
       height:100%;
       display:block;
+      border:0;
       background:#000;
     }
 
@@ -291,6 +289,30 @@
     .row b{display:block; font-size:13px; margin-bottom:4px;}
     .row span{color:var(--muted); font-size:12px; line-height:1.4; display:block;}
 
+    /* ✅ Suitability "8" circle */
+    .nowRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:4px;
+    }
+    .ageBadge{
+      width:34px;
+      height:34px;
+      border-radius:999px;
+      display:inline-grid;
+      place-items:center;
+      font-weight:900;
+      font-size:14px;
+      color: var(--text);
+      border: 2px solid rgba(74,163,255,.75);
+      background: rgba(74,163,255,.12);
+      box-shadow: 0 10px 24px rgba(74,163,255,.12);
+      flex: 0 0 auto;
+      user-select:none;
+    }
+
     footer{
       margin-top:18px;
       color:var(--muted);
@@ -299,7 +321,6 @@
       opacity:.9;
     }
     .tiny{opacity:.85}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
 
     /* helper to hide intro with animation */
     .fadeOut{
@@ -309,27 +330,11 @@
       to{ opacity:0; transform: translateY(6px); }
     }
 
-    /* ✅ ADDED: Suitability badge "8" */
-    .nowRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .ageBadge{
-      width:34px;
-      height:34px;
-      border-radius:999px;
-      display:grid;
-      place-items:center;
-      font-weight:900;
-      font-size:14px;
-      color: #e9eefc;
-      border:2px solid rgba(74,163,255,.75);
-      background: linear-gradient(135deg, rgba(74,163,255,.20), rgba(31,111,255,.20));
-      box-shadow: 0 0 18px rgba(74,163,255,.35);
-      flex: 0 0 auto;
-      user-select:none;
+    /* disabled buttons look */
+    .btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      transform:none !important;
     }
   </style>
 </head>
@@ -339,7 +344,6 @@
     <header>
       <div class="brand">
         <div class="logo" id="logoBox" title="ZeusTV">
-          <!-- <img id="logoImg" src="logo.png" alt="ZeusTV logo" /> -->
           <span id="logoFallback">ztv</span>
         </div>
         <div>
@@ -349,8 +353,9 @@
       </div>
 
       <nav>
-        <a class="pill" href="program.html">Πρόγραμμα</a>
-        <a class="pill" href="contact.html">Επικοινωνία</a>
+        <a class="pill" href="#live">Live</a>
+        <a class="pill" href="#program">Πρόγραμμα</a>
+        <a class="pill" href="#contact">Επικοινωνία</a>
       </nav>
     </header>
 
@@ -364,15 +369,28 @@
           </div>
 
           <div class="actions">
-            <button class="btn" id="btnPlay" type="button">Play</button>
-            <button class="btn" id="btnMute" type="button">Mute</button>
+            <!-- Kick embed: αυτά δεν ελέγχουν iframe -->
+            <button class="btn" id="btnPlay" type="button" disabled title="Δεν υποστηρίζεται στο Kick embed">Play</button>
+            <button class="btn" id="btnMute" type="button" disabled title="Δεν υποστηρίζεται στο Kick embed">Mute</button>
             <button class="btn" id="btnFull" type="button">Fullscreen</button>
-            <button class="btn" id="btnCopy" type="button">Copy m3u8</button>
+            <button class="btn" id="btnCopy" type="button" disabled title="Δεν υποστηρίζεται στο Kick embed">Copy m3u8</button>
           </div>
         </div>
 
         <div class="videoWrap">
-          <video id="video" controls playsinline preload="metadata"></video>
+          <!-- ✅ Kick Stream -->
+          <iframe
+            id="kickPlayer"
+            src="https://player.kick.com/zeustvgreece"
+            height="720"
+            width="1280"
+            frameborder="0"
+            scrolling="no"
+            allowfullscreen="true"
+            allow="autoplay; fullscreen; picture-in-picture"
+            referrerpolicy="origin-when-cross-origin"
+            title="Kick Live Stream"
+          ></iframe>
 
           <!-- INTRO OVERLAY (starts visible) -->
           <div class="intro" id="intro">
@@ -384,7 +402,7 @@
                   <span class="introDot" aria-hidden="true"></span>
                   <span>Καλώς ήρθατε</span>
                 </div>
-                <span class="chip" style="border-color: rgba(74,163,255,.35); background: rgba(74,163,255,.10);">HD Live</span>
+                <span class="chip" style="border-color: rgba(74,163,255,.35); background: rgba(74,163,255,.10);">Live</span>
               </div>
 
               <h2 class="introTitle">Καλώς ήρθατε στο <b>ZeusTV</b></h2>
@@ -401,12 +419,12 @@
 
         <div class="statusBar">
           <div class="status">
-            <span class="chip" id="chipState">Ready</span>
-            <span class="mono tiny" id="techNote">—</span>
+            <span class="chip good" id="chipState">Ready</span>
+            <span class="tiny" id="techNote">Kick Player</span>
           </div>
           <div class="status">
             <span class="tiny">Stream:</span>
-            <span class="mono tiny">https://live20.bozztv.com/akamaissh101/ssh101/zeusmedia/playlist.m3u8</span>
+            <span class="tiny">player.kick.com/zeustvgreece</span>
           </div>
         </div>
       </section>
@@ -418,10 +436,9 @@
 
         <div class="list">
           <div class="row">
-            <!-- ✅ UPDATED: "Τώρα παίζει" + badge 8 -->
             <div class="nowRow">
               <b>Τώρα παίζει</b>
-              <div class="ageBadge" title="Καταλληλότητα 8+">8</div>
+              <span class="ageBadge" title="Καταλληλότητα 8+">8</span>
             </div>
             <span id="nowPlaying">Live πρόγραμμα</span>
           </div>
@@ -445,46 +462,15 @@
     </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    // =========================
-    // STREAM SETTINGS
-    // =========================
-    const RAW_STREAM_URL = "https://glb.bozztv.com/glb/ssh101/zeys/index.m3u8";
-
-    // ✅ Αν το stream είναι CORS-blocked, βάζεις εδώ proxy prefix.
-    // Παράδειγμα (Cloudflare Worker): "https://YOUR-WORKER.workers.dev/?url="
-    const HLS_PROXY_PREFIX = ""; // <-- άδειο = direct
-
-    const STREAM_URL = HLS_PROXY_PREFIX
-      ? (HLS_PROXY_PREFIX + encodeURIComponent(RAW_STREAM_URL))
-      : RAW_STREAM_URL;
-
-    // =========================
-    // DOM
-    // =========================
-    const video = document.getElementById("video");
-    const chipState = document.getElementById("chipState");
-    const techNote  = document.getElementById("techNote");
-
-    const btnPlay = document.getElementById("btnPlay");
-    const btnMute = document.getElementById("btnMute");
-    const btnFull = document.getElementById("btnFull");
-    const btnCopy = document.getElementById("btnCopy");
+    document.getElementById("year").textContent = new Date().getFullYear();
 
     const intro = document.getElementById("intro");
     const btnEnter = document.getElementById("btnEnter");
-    const btnInfo  = document.getElementById("btnInfo");
+    const btnInfo = document.getElementById("btnInfo");
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-    let hls = null;
-    let started = false;
-
-    function setChip(text, kind){
-      chipState.textContent = text;
-      chipState.className = "chip" + (kind ? (" " + kind) : "");
-    }
+    const kickPlayer = document.getElementById("kickPlayer");
+    const btnFull = document.getElementById("btnFull");
 
     function hideIntro(){
       if (!intro) return;
@@ -492,206 +478,27 @@
       setTimeout(()=> intro.remove(), 380);
     }
 
-    async function safePlay(){
-      try{
-        await video.play();
-        setChip("Live", "good");
-      }catch(e){
-        console.warn(e);
-        setChip("Πατήστε Play", "warn");
-        techNote.textContent = "Autoplay blocked — press Play.";
-      }
-    }
-
-    // ✅ NEW: quick check if browser can fetch the manifest (CORS test).
-    async function checkManifestCORS(url){
-      try{
-        const res = await fetch(url, { method:"GET", mode:"cors", cache:"no-store" });
-        // Αν κόβεται από CORS, συνήθως θα γίνει catch πριν εδώ.
-        if (!res.ok) return { ok:false, reason:"HTTP " + res.status };
-        const text = await res.text();
-        // στοιχειώδες sanity
-        if (!text.includes("#EXTM3U")) return { ok:false, reason:"Not an HLS manifest" };
-        return { ok:true, reason:"OK" };
-      }catch(err){
-        return { ok:false, reason:"CORS/Network blocked" };
-      }
-    }
-
-    function destroyHls(){
-      if (hls){
-        try{ hls.destroy(); }catch(e){}
-        hls = null;
-      }
-      // Καθαρίζουμε το src για καθαρό retry
-      try{ video.removeAttribute("src"); video.load(); }catch(e){}
-    }
-
-    function initPlayer(){
-      destroyHls();
-
-      // iOS/Safari: native HLS
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = STREAM_URL;
-        techNote.textContent = "Native HLS (Safari/iOS)";
-        setChip("Ready", "good");
-        return;
-      }
-
-      // Other browsers: hls.js
-      if (window.Hls && Hls.isSupported()) {
-        hls = new Hls({
-          lowLatencyMode: true,
-          backBufferLength: 30,
-          maxBufferLength: 30,
-          maxMaxBufferLength: 60,
-
-          // ✅ Helps some CDN cases (doesn't bypass CORS)
-          enableWorker: true
-        });
-
-        // ✅ xhrSetup: explicit
-        hls.config.xhrSetup = function (xhr) {
-          xhr.withCredentials = false;
-        };
-
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-          techNote.textContent = "hls.js (Chrome/Edge/Firefox)";
-          setChip("Φορτώνει…", "warn");
-          hls.loadSource(STREAM_URL);
-        });
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          setChip("Ready", "good");
-        });
-
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          console.error("HLS error:", data);
-
-          const fatal = !!data.fatal;
-          const type = data.type || "";
-          const details = data.details || "";
-          const reason = (details || type || "Playback error").toString();
-
-          // πιο "ξεκάθαρο" μήνυμα για CORS
-          if (details === "manifestLoadError" || details === "manifestLoadTimeOut") {
-            setChip("Error", "bad");
-            techNote.textContent = "Manifest δεν φορτώνει. Πιθανό CORS block. (Δες Console)";
-          } else {
-            setChip("Error", "bad");
-            techNote.textContent = "Playback error: " + reason + " (Δες Console)";
-          }
-
-          if (fatal) {
-            // try to recover once
-            try{
-              if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                hls.startLoad();
-              } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                hls.recoverMediaError();
-              }
-            }catch(e){}
-          }
-        });
-
-        return;
-      }
-
-      setChip("Not supported", "bad");
-      techNote.textContent = "";
-    }
-
-    // Buttons
-    btnEnter.addEventListener("click", async () => {
-      if (!started){
-        started = true;
-
-        // ✅ CORS test before init (gives you REAL reason)
-        setChip("Checking…", "warn");
-        techNote.textContent = "Testing stream availability…";
-
-        const test = await checkManifestCORS(STREAM_URL);
-        if (!test.ok){
-          setChip("CORS blocked", "bad");
-          techNote.textContent = "Το stream μπλοκάρει browser (CORS). Θέλει proxy ή allow από provider.";
-          // still hide intro, but player won't start
-          hideIntro();
-          return;
-        }
-
-        initPlayer();
-      }
+    // WebTV button -> just removes overlay (Kick loads on its own)
+    btnEnter.addEventListener("click", () => {
       hideIntro();
-      safePlay();
     });
 
     btnInfo.addEventListener("click", () => {
-      alert("ZeusTV Live");
+      alert("ZeusTV Live (Kick)");
     });
 
-    btnPlay.addEventListener("click", async () => {
-      if (!started){
-        started = true;
-
-        setChip("Checking…", "warn");
-        techNote.textContent = "Testing stream availability…";
-
-        const test = await checkManifestCORS(STREAM_URL);
-        if (!test.ok){
-          setChip("CORS blocked", "bad");
-          techNote.textContent = "Το stream μπλοκάρει browser (CORS). Θέλει proxy ή allow από provider.";
-          hideIntro();
-          return;
-        }
-
-        initPlayer();
-        hideIntro();
-      }
-      safePlay();
-    });
-
-    btnMute.addEventListener("click", () => {
-      video.muted = !video.muted;
-      btnMute.textContent = video.muted ? "Unmute" : "Mute";
-    });
-
+    // Fullscreen for iframe
     btnFull.addEventListener("click", async () => {
       try{
         if (document.fullscreenElement) {
           await document.exitFullscreen();
         } else {
-          await video.requestFullscreen();
+          await kickPlayer.requestFullscreen();
         }
       }catch(e){
         console.warn(e);
       }
     });
-
-    btnCopy.addEventListener("click", async () => {
-      try{
-        await navigator.clipboard.writeText(RAW_STREAM_URL);
-        setChip("Copied!", "good");
-        setTimeout(()=> setChip(video.paused ? "Ready" : "Live", "good"), 900);
-      }catch(e){
-        setChip("Copy failed", "warn");
-      }
-    });
-
-    // status updates
-    video.addEventListener("playing", () => setChip("Live", "good"));
-    video.addEventListener("pause", () => setChip("Paused", "warn"));
-    video.addEventListener("waiting", () => setChip("Buffering…", "warn"));
-    video.addEventListener("error", () => setChip("Error", "bad"));
-
-    // no auto init
-    setChip("Ready", "good");
-    techNote.textContent = "Press «Live» to start";
   </script>
 </body>
 </html>
-
-
-
-
