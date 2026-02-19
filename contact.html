@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ZeusTV — Επικοινωνία</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">
+          <span>ztv</span>
+        </div>
+        <div>
+          <h1>ZTV</h1>
+          <small>Διαδικτυακό Κανάλι • Live Stream</small>
+        </div>
+      </div>
+
+      <nav>
+        <a class="pill" href="index.html">Live</a>
+        <a class="pill" href="program.html">Πρόγραμμα</a>
+        <a class="pill" href="contact.html">Επικοινωνία</a>
+      </nav>
+    </header>
+
+    <main style="padding:40px 0;">
+      <div class="card" style="padding:40px; text-align:center;">
+        <h2>Επικοινωνία</h2>
+        <p style="margin-top:20px; font-size:18px;">
+          email: <b>tvzeys822@email.com</b>
+        </p>
+      </div>
+    </main>
+
+    <footer>
+      <div>© <span id="year"></span> ZTV</div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
