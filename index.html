@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ZeusTV — Live</title>
   <meta name="description" content="ZeusTV — Διαδικτυακό τηλεοπτικό κανάλι" />
-  
+
+  <!-- ✅ ADDED: Google Font (Geologica) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
   <style>
     :root{
       /* BLUE ONLY */
@@ -34,7 +39,8 @@
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Inter, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      /* ✅ CHANGED (minimal): put Geologica first, kept your fallbacks */
+      font-family: "Geologica", ui-sans-serif, system-ui, -apple-system, Inter, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
       color:var(--text);
       background:
         radial-gradient(1100px 700px at 15% -10%, rgba(74,163,255,.28), transparent 60%),
@@ -362,7 +368,7 @@
 
               <h2 class="introTitle">Καλώς ήρθατε στο <b>ZeusTV</b></h2>
               <p class="introText">
-                
+
               </p>
 
               <div class="introActions">
@@ -416,6 +422,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
+    // ✅ ADDED (minimal): optional proxy to fix CORS.
+    // Αν ο server του stream μπλοκάρει CORS, βάλε εδώ ένα proxy URL (π.χ. Cloudflare Worker).
+    // Άφησέ το κενό αν δεν έχεις proxy.
+    const HLS_PROXY_PREFIX = ""; // π.χ. "https://YOUR-WORKER.workers.dev/?url="
+
     const STREAM_URL = "https://glb.bozztv.com/glb/ssh101/zeys/index.m3u8";
 
     const video = document.getElementById("video");
@@ -441,10 +452,18 @@
       chipState.className = "chip" + (kind ? (" " + kind) : "");
     }
 
+    // ✅ ADDED: resolve url through proxy if set
+    function getStreamUrl(){
+      if (!HLS_PROXY_PREFIX) return STREAM_URL;
+      return HLS_PROXY_PREFIX + encodeURIComponent(STREAM_URL);
+    }
+
     function initPlayer(){
+      const url = getStreamUrl();
+
       // iOS/Safari: native HLS
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = STREAM_URL;
+        video.src = url;
         techNote.textContent = "Native HLS (Safari/iOS)";
         setChip("Ready", "good");
         return;
@@ -462,7 +481,7 @@
         hls.attachMedia(video);
         hls.on(Hls.Events.MEDIA_ATTACHED, () => {
           techNote.textContent = "hls.js (Chrome/Edge/Firefox)";
-          hls.loadSource(STREAM_URL);
+          hls.loadSource(url);
           setChip("Φορτώνει…", "warn");
         });
 
@@ -472,8 +491,13 @@
 
         hls.on(Hls.Events.ERROR, (event, data) => {
           console.error("HLS error:", data);
+
+          // ✅ ADDED: show more helpful hint (no layout changes)
+          const hint =
+            data && data.details ? String(data.details) : "unknown";
           setChip("Error", "bad");
-          techNote.textContent = "Playback error — check stream / CORS / availability";
+          techNote.textContent =
+            "Playback error (" + hint + ") — πιθανό CORS/availability. Δες Console.";
         });
 
         return;
@@ -563,5 +587,3 @@
   </script>
 </body>
 </html>
-
-
