@@ -1,525 +1,152 @@
 <!doctype html>
 <html lang="el">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ZeusTV — Live</title>
-  <meta name="description" content="ZeusTV — Διαδικτυακό τηλεοπτικό κανάλι" />
-  <title>ZeusTV Live - Ελληνικό Διαδικτυακό Κανάλι</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZeusTV — Σύντομα κοντά σας</title>
 
-  <meta name="description" content="Δες το ZeusTV Live online. Ελληνικό διαδικτυακό τηλεοπτικό κανάλι με ζωντανή μετάδοση.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;600;800&display=swap" rel="stylesheet">
 
-  <meta name="keywords" content="ZeusTV, ZTV, ζευς, zeys tv, zeus tv ελληνικό live stream, web tv, online τηλεόραση">
+<style>
+:root{
+  --bg:#070b14;
+  --bg2:#0a1020;
+  --accent:#4aa3ff;
+  --accent2:#1f6fff;
+  --text:#e9eefc;
+}
 
-  <meta name="author" content="ZeusTV">
+*{box-sizing:border-box;margin:0;padding:0}
 
-  <meta property="og:title" content="ZeusTV Live">
-  <meta property="og:description" content="Ζωντανή μετάδοση ZeusTV online">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://zeustv.live">
-  <meta property="og:image" content="https://zeustv.live/logo.png">
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="shortcut icon" href="favicon.png">
+body{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:"Geologica", sans-serif;
+  color:var(--text);
+  overflow:hidden;
+  background:
+    radial-gradient(1000px 600px at 50% 20%, rgba(74,163,255,.25), transparent 60%),
+    radial-gradient(800px 500px at 80% 80%, rgba(31,111,255,.20), transparent 60%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+}
 
+/* animated light waves */
+.wave{
+  position:absolute;
+  width:140%;
+  height:140%;
+  border-radius:50%;
+  background: radial-gradient(circle at center, rgba(74,163,255,.15), transparent 60%);
+  animation: rotate 18s linear infinite;
+  opacity:.4;
+}
 
+.wave:nth-child(1){animation-duration:30s;}
+.wave:nth-child(2){animation-duration:45s;opacity:.2;}
+.wave:nth-child(3){animation-duration:60s;opacity:.15;}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght,CRSV@100..900,0&display=swap" rel="stylesheet">
+@keyframes rotate{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
 
-  <style>
-    :root{
-      /* BLUE ONLY */
-      --bg:#070b14;
-      --bg2:#0a1020;
+/* center container */
+.container{
+  text-align:center;
+  z-index:2;
+}
 
-      --card:rgba(255,255,255,.06);
-      --card2:rgba(255,255,255,.03);
+.title{
+  font-size: clamp(32px, 6vw, 64px);
+  font-weight:800;
+  letter-spacing:.5px;
+  background: linear-gradient(90deg, var(--accent), #8fd2ff, var(--accent2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation: pulse 2.5s ease-in-out infinite;
+}
 
-      --text:#e9eefc;
-      --muted:#a9b4d6;
-      --line:rgba(255,255,255,.10);
+/* glow pulse */
+@keyframes pulse{
+  0%{filter:drop-shadow(0 0 10px rgba(74,163,255,.4));}
+  50%{filter:drop-shadow(0 0 30px rgba(74,163,255,.8));}
+  100%{filter:drop-shadow(0 0 10px rgba(74,163,255,.4));}
+}
 
-      --accent:#4aa3ff;   /* main blue */
-      --accent2:#8fd2ff;  /* light blue */
-      --accent3:#1f6fff;  /* deep blue */
+/* subtle animated dots */
+.dots{
+  margin-top:20px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+}
 
-      --good:#2ecc71;
-      --warn:#f1c40f;
-      --bad:#ff5c77;
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--accent);
+  animation:bounce 1.4s infinite ease-in-out;
+}
 
-      --radius:18px;
-      --shadow: 0 18px 60px rgba(0,0,0,.35);
-    }
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: "Geologica", ui-sans-serif, system-ui, -apple-system, Inter, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--text);
-      background:
-        radial-gradient(1100px 700px at 15% -10%, rgba(74,163,255,.28), transparent 60%),
-        radial-gradient(900px 600px at 90% 20%, rgba(143,210,255,.18), transparent 55%),
-        radial-gradient(700px 500px at 50% 110%, rgba(31,111,255,.14), transparent 55%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
-      min-height:100vh;
-    }
+@keyframes bounce{
+  0%,100%{transform:translateY(0);opacity:.6}
+  50%{transform:translateY(-10px);opacity:1}
+}
 
-    a{color:inherit}
-    .wrap{max-width:1150px; margin:0 auto; padding:24px 16px 60px;}
+/* soft floating particles */
+.particle{
+  position:absolute;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:rgba(255,255,255,.4);
+  animation: float 10s linear infinite;
+}
 
-    header{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:14px; padding:12px 0 18px;
-    }
-
-    .brand{display:flex; align-items:center; gap:12px; min-width: 240px;}
-    .logo{
-      width:46px; height:46px; border-radius:14px;
-      background: linear-gradient(135deg, rgba(74,163,255,.95), rgba(31,111,255,.95));
-      box-shadow: 0 10px 30px rgba(74,163,255,.20);
-      display:grid; place-items:center;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.14);
-    }
-    .logo img{width:100%; height:100%; object-fit:cover; display:none;}
-    .logo span{
-      font-weight:900;
-      letter-spacing:.2px;
-      color:#051024;
-      text-transform: lowercase;
-    }
-
-    .brand h1{margin:0; font-size:18px; line-height:1.1;}
-    .brand small{display:block; color:var(--muted); margin-top:2px; font-size:12px;}
-
-    nav{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
-    .pill{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      padding:10px 12px;
-      border-radius:999px;
-      text-decoration:none;
-      font-size:13px;
-      color:var(--text);
-      transition:.2s ease;
-      backdrop-filter: blur(10px);
-    }
-    .pill:hover{transform: translateY(-1px); background: rgba(255,255,255,.06);}
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1.6fr 1fr;
-      gap:16px;
-      align-items:start;
-    }
-    @media (max-width: 900px){
-      .grid{grid-template-columns: 1fr;}
-      nav{justify-content:flex-start;}
-      header{flex-direction:column; align-items:flex-start;}
-    }
-
-    .card{
-      background: linear-gradient(180deg, var(--card), var(--card2));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-
-    /* -------- INTRO OVERLAY (WELCOME) -------- */
-    .intro{
-      position:absolute;
-      inset:0;
-      display:grid;
-      place-items:center;
-      padding:18px;
-      background:
-        radial-gradient(700px 450px at 50% 30%, rgba(74,163,255,.18), transparent 60%),
-        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.78));
-      backdrop-filter: blur(8px);
-    }
-
-    .introCard{
-      width:min(720px, 100%);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius: 22px;
-      padding: 22px 18px;
-      background: rgba(10,16,32,.55);
-      box-shadow: 0 30px 120px rgba(0,0,0,.50);
-      overflow:hidden;
-      position:relative;
-      animation: introPop .65s ease both;
-    }
-
-    .introGlow{
-      position:absolute; inset:-40px;
-      background: radial-gradient(closest-side, rgba(74,163,255,.22), transparent 60%);
-      filter: blur(18px);
-      pointer-events:none;
-      animation: glowMove 2.6s ease-in-out infinite alternate;
-    }
-
-    @keyframes introPop{
-      from{ opacity:0; transform: translateY(10px) scale(.985);}
-      to{ opacity:1; transform: translateY(0) scale(1);}
-    }
-    @keyframes glowMove{
-      from{ transform: translateX(-10px) translateY(-6px); opacity:.8;}
-      to{ transform: translateX(12px) translateY(8px); opacity:1;}
-    }
-
-    .introTop{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      margin-bottom: 14px;
-    }
-    .introBadge{
-      display:flex; align-items:center; gap:10px;
-      font-size:12px; color:var(--muted);
-    }
-    .introDot{
-      width:10px; height:10px; border-radius:50%;
-      background: var(--accent);
-      box-shadow: 0 0 0 6px rgba(74,163,255,.14);
-      animation: pulse 1.4s infinite ease-in-out;
-    }
-    @keyframes pulse{
-      0%,100%{transform:scale(1); opacity:1}
-      50%{transform:scale(1.15); opacity:.75}
-    }
-
-    .introTitle{
-      margin:0;
-      font-size: 28px;
-      letter-spacing:.2px;
-    }
-    .introTitle b{
-      background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent3));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-    }
-    .introText{
-      margin:10px 0 16px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .introActions{
-      display:flex; gap:10px; flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .btn{
-      cursor:pointer;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.05);
-      color:var(--text);
-      padding:11px 14px;
-      border-radius:14px;
-      font-size:13px;
-      transition:.15s ease;
-    }
-    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.08);}
-    .btn:active{transform: translateY(0px);}
-
-    .btnPrimary{
-      border-color: rgba(74,163,255,.35);
-      background: linear-gradient(135deg, rgba(74,163,255,.35), rgba(31,111,255,.30));
-      box-shadow: 0 10px 30px rgba(74,163,255,.18);
-    }
-
-    /* -------- PLAYER -------- */
-    .playerHeader{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
-      padding:14px 14px 10px;
-      background: rgba(0,0,0,.12);
-      border-bottom:1px solid var(--line);
-    }
-
-    .liveBadge{
-      display:flex; align-items:center; gap:10px;
-      font-size:13px; color:var(--muted);
-    }
-    .dot{
-      width:10px; height:10px; border-radius:50%;
-      background: var(--bad);
-      box-shadow: 0 0 0 6px rgba(255,92,119,.12);
-      animation: pulse 1.4s infinite ease-in-out;
-    }
-
-    .actions{display:flex; gap:8px; flex-wrap:wrap;}
-
-    .videoWrap{
-      position:relative;
-      background: #000;
-      aspect-ratio: 16 / 9;
-      width:100%;
-    }
-
-    /* ✅ Kick player iframe */
-    #kickPlayer{
-      width:100%;
-      height:100%;
-      display:block;
-      border:0;
-      background:#000;
-    }
-
-    .statusBar{
-      padding:12px 14px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; flex-wrap:wrap;
-      border-top:1px solid var(--line);
-      background: rgba(0,0,0,.10);
-    }
-    .status{
-      font-size:13px; color:var(--muted);
-      display:flex; align-items:center; gap:10px;
-    }
-    .chip{
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      font-size:12px;
-      color:var(--text);
-    }
-    .chip.good{border-color: rgba(46,204,113,.35); background: rgba(46,204,113,.10);}
-    .chip.warn{border-color: rgba(241,196,15,.35); background: rgba(241,196,15,.10);}
-    .chip.bad{border-color: rgba(255,92,119,.35); background: rgba(255,92,119,.10);}
-
-    .side{padding:14px;}
-    .side h2{margin:0 0 8px; font-size:16px;}
-    .side p{margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.5;}
-
-    .list{display:grid; gap:10px;}
-    .row{
-      padding:12px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background: rgba(0,0,0,.10);
-    }
-    .row b{display:block; font-size:13px; margin-bottom:4px;}
-    .row span{color:var(--muted); font-size:12px; line-height:1.4; display:block;}
-
-    /* ✅ Suitability "8" circle */
-    .nowRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:4px;
-    }
-    .ageBadge{
-      width:34px;
-      height:34px;
-      border-radius:999px;
-      display:inline-grid;
-      place-items:center;
-      font-weight:900;
-      font-size:14px;
-      color: var(--text);
-      border: 2px solid rgba(74,163,255,.75);
-      background: rgba(74,163,255,.12);
-      box-shadow: 0 10px 24px rgba(74,163,255,.12);
-      flex: 0 0 auto;
-      user-select:none;
-    }
-
-    footer{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:12px;
-      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
-      opacity:.9;
-    }
-    .tiny{opacity:.85}
-
-    /* helper to hide intro with animation */
-    .fadeOut{
-      animation: fadeOut .35s ease forwards;
-    }
-    @keyframes fadeOut{
-      to{ opacity:0; transform: translateY(6px); }
-    }
-
-    /* disabled buttons look */
-    .btn:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-      transform:none !important;
-    }
-  </style>
+@keyframes float{
+  from{transform:translateY(0);opacity:0}
+  10%{opacity:1}
+  to{transform:translateY(-120vh);opacity:0}
+}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo" id="logoBox" title="ZeusTV">
-          <span id="logoFallback">ztv</span>
-        </div>
-        <div>
-          <h1>ZTV</h1>
-          <small>Διαδικτυακό Κανάλι • Live Stream</small>
-        </div>
-      </div>
 
-      <nav>
-        <a class="pill" href="program.html">Πρόγραμμα</a>
-        <a class="pill" href="contact.html">Επικοινωνία</a>
-      </nav>
-    </header>
+<!-- animated waves -->
+<div class="wave"></div>
+<div class="wave"></div>
+<div class="wave"></div>
 
-    <main class="grid" id="live">
-      <!-- PLAYER CARD -->
-      <section class="card">
-        <div class="playerHeader">
-          <div class="liveBadge">
-            <span class="dot" aria-hidden="true"></span>
-            <span><b>LIVE</b> • ZTV LiveStream</span>
-          </div>
-
-          <div class="actions">
-            <!-- Kick embed: αυτά δεν ελέγχουν iframe -->
-            <button class="btn" id="btnPlay" type="button" disabled title="Δεν υποστηρίζεται στο Kick embed">Play</button>
-            <button class="btn" id="btnMute" type="button" disabled title="Δεν υποστηρίζεται στο Kick embed">Mute</button>
-            <button class="btn" id="btnFull" type="button">Fullscreen</button>
-            <button class="btn" id="btnCopy" type="button" disabled title="Δεν υποστηρίζεται στο Kick embed">Copy m3u8</button>
-          </div>
-        </div>
-
-        <div class="videoWrap">
-          <!-- ✅ Kick Stream -->
-          <iframe
-            id="kickPlayer"
-            src="https://player.kick.com/zeustvgreece"
-            height="720"
-            width="1280"
-            frameborder="0"
-            scrolling="no"
-            allowfullscreen="true"
-            allow="autoplay; fullscreen; picture-in-picture"
-            referrerpolicy="origin-when-cross-origin"
-            title="Kick Live Stream"
-          ></iframe>
-
-          <!-- INTRO OVERLAY (starts visible) -->
-          <div class="intro" id="intro">
-            <div class="introCard" role="dialog" aria-label="Welcome">
-              <div class="introGlow" aria-hidden="true"></div>
-
-              <div class="introTop">
-                <div class="introBadge">
-                  <span class="introDot" aria-hidden="true"></span>
-                  <span>Καλώς ήρθατε</span>
-                </div>
-                <span class="chip" style="border-color: rgba(74,163,255,.35); background: rgba(74,163,255,.10);">Live</span>
-              </div>
-
-              <h2 class="introTitle">Καλώς ήρθατε στο <b>ZeusTV</b></h2>
-              <p class="introText"></p>
-
-              <div class="introActions">
-                <button class="btn btnPrimary" id="btnEnter" type="button">WEBTV</button>
-                <button class="btn" id="btnInfo" type="button">Πληροφορίες</button>
-                <span class="hint"></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="statusBar">
-          <div class="status">
-            <span class="chip good" id="chipState">Ready</span>
-            <span class="tiny" id="techNote">Kick Player</span>
-          </div>
-          <div class="status">
-            <span class="tiny">Stream:</span>
-            <span class="tiny">player.kick.com/zeustvgreece</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- SIDE INFO -->
-      <aside class="card side" id="program">
-        <h2>Πρόγραμμα / Πληροφορίες</h2>
-        <p>Live Πρόγραμμα</p>
-
-        <div class="list">
-          <div class="row">
-            <div class="nowRow">
-              <b>Τώρα παίζει</b>
-              <span class="ageBadge" title="Καταλληλότητα 8+">8</span>
-            </div>
-            <span id="nowPlaying">Live πρόγραμμα</span>
-          </div>
-
-          <div class="row">
-            <b>Επόμενο</b>
-            <span>—</span>
-          </div>
-
-          <div class="row" id="contact">
-            <b>Επικοινωνία</b>
-            <span>email: tvzeys882@gmail.com</span>
-          </div>
-        </div>
-      </aside>
-    </main>
-
-    <footer>
-      <div>© <span id="year"></span> ZTV</div>
-      <div class="tiny"></div>
-    </footer>
+<div class="container">
+  <div class="title">Σύντομα κοντά σας</div>
+  <div class="dots">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
   </div>
+</div>
 
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
+<script>
+// generate floating particles
+for(let i=0;i<40;i++){
+  const p=document.createElement("div");
+  p.className="particle";
+  p.style.left=Math.random()*100+"vw";
+  p.style.animationDuration=6+Math.random()*10+"s";
+  p.style.animationDelay=Math.random()*5+"s";
+  document.body.appendChild(p);
+}
+</script>
 
-    const intro = document.getElementById("intro");
-    const btnEnter = document.getElementById("btnEnter");
-    const btnInfo = document.getElementById("btnInfo");
-
-    const kickPlayer = document.getElementById("kickPlayer");
-    const btnFull = document.getElementById("btnFull");
-
-    function hideIntro(){
-      if (!intro) return;
-      intro.classList.add("fadeOut");
-      setTimeout(()=> intro.remove(), 380);
-    }
-
-    // WebTV button -> just removes overlay (Kick loads on its own)
-    btnEnter.addEventListener("click", () => {
-      hideIntro();
-    });
-
-    btnInfo.addEventListener("click", () => {
-      alert("ZeusTV Live (Kick)");
-    });
-
-    // Fullscreen for iframe
-    btnFull.addEventListener("click", async () => {
-      try{
-        if (document.fullscreenElement) {
-          await document.exitFullscreen();
-        } else {
-          await kickPlayer.requestFullscreen();
-        }
-      }catch(e){
-        console.warn(e);
-      }
-    });
-  </script>
 </body>
 </html>
-
-
-
-
-
-
