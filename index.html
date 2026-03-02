@@ -1,152 +1,66 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="el">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ZeusTV — Σύντομα κοντά σας</title>
+  <meta charset="UTF-8">
+  <title>TV Zeus</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Open Sans Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 
-<style>
-:root{
-  --bg:#070b14;
-  --bg2:#0a1020;
-  --accent:#4aa3ff;
-  --accent2:#1f6fff;
-  --text:#e9eefc;
-}
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-*{box-sizing:border-box;margin:0;padding:0}
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-image: url('https://files.catbox.moe/dd8om3.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      text-align: center;
+    }
 
-body{
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:"Geologica", sans-serif;
-  color:var(--text);
-  overflow:hidden;
-  background:
-    radial-gradient(1000px 600px at 50% 20%, rgba(74,163,255,.25), transparent 60%),
-    radial-gradient(800px 500px at 80% 80%, rgba(31,111,255,.20), transparent 60%),
-    linear-gradient(180deg,var(--bg),var(--bg2));
-}
+    .email-container {
+      width: 100%;
+      padding: 30px 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+    }
 
-/* animated light waves */
-.wave{
-  position:absolute;
-  width:140%;
-  height:140%;
-  border-radius:50%;
-  background: radial-gradient(circle at center, rgba(74,163,255,.15), transparent 60%);
-  animation: rotate 18s linear infinite;
-  opacity:.4;
-}
+    .email-container a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
 
-.wave:nth-child(1){animation-duration:30s;}
-.wave:nth-child(2){animation-duration:45s;opacity:.2;}
-.wave:nth-child(3){animation-duration:60s;opacity:.15;}
+    .email-container a:hover {
+      opacity: 0.8;
+    }
 
-@keyframes rotate{
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
-}
+    @media (max-width: 768px) {
+      .email-container a {
+        font-size: 18px;
+      }
+    }
 
-/* center container */
-.container{
-  text-align:center;
-  z-index:2;
-}
-
-.title{
-  font-size: clamp(32px, 6vw, 64px);
-  font-weight:800;
-  letter-spacing:.5px;
-  background: linear-gradient(90deg, var(--accent), #8fd2ff, var(--accent2));
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-  animation: pulse 2.5s ease-in-out infinite;
-}
-
-/* glow pulse */
-@keyframes pulse{
-  0%{filter:drop-shadow(0 0 10px rgba(74,163,255,.4));}
-  50%{filter:drop-shadow(0 0 30px rgba(74,163,255,.8));}
-  100%{filter:drop-shadow(0 0 10px rgba(74,163,255,.4));}
-}
-
-/* subtle animated dots */
-.dots{
-  margin-top:20px;
-  display:flex;
-  justify-content:center;
-  gap:8px;
-}
-
-.dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:var(--accent);
-  animation:bounce 1.4s infinite ease-in-out;
-}
-
-.dot:nth-child(2){animation-delay:.2s}
-.dot:nth-child(3){animation-delay:.4s}
-
-@keyframes bounce{
-  0%,100%{transform:translateY(0);opacity:.6}
-  50%{transform:translateY(-10px);opacity:1}
-}
-
-/* soft floating particles */
-.particle{
-  position:absolute;
-  width:4px;
-  height:4px;
-  border-radius:50%;
-  background:rgba(255,255,255,.4);
-  animation: float 10s linear infinite;
-}
-
-@keyframes float{
-  from{transform:translateY(0);opacity:0}
-  10%{opacity:1}
-  to{transform:translateY(-120vh);opacity:0}
-}
-</style>
+  </style>
 </head>
-
 <body>
 
-<!-- animated waves -->
-<div class="wave"></div>
-<div class="wave"></div>
-<div class="wave"></div>
-
-<div class="container">
-  <div class="title">Σύντομα κοντά σας</div>
-  <div class="dots">
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
+  <div class="email-container">
+    <a href="mailto:tvzeys882@gmail.com">tvzeys882@gmail.com</a>
   </div>
-</div>
-
-<script>
-// generate floating particles
-for(let i=0;i<40;i++){
-  const p=document.createElement("div");
-  p.className="particle";
-  p.style.left=Math.random()*100+"vw";
-  p.style.animationDuration=6+Math.random()*10+"s";
-  p.style.animationDelay=Math.random()*5+"s";
-  document.body.appendChild(p);
-}
-</script>
 
 </body>
 </html>
