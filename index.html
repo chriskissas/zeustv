@@ -4,61 +4,62 @@
   <meta charset="UTF-8">
   <title>TV Zeus</title>
 
-  <!-- Open Sans Font -->
+  <!-- Open Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
+      margin: 0;
       font-family: 'Open Sans', sans-serif;
-      background-image: url('https://files.catbox.moe/dd8om3.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      height: 100vh;
+      background-color: #154369; /* Το μπλε που ζήτησες */
       display: flex;
+      flex-direction: column;
       justify-content: center;
-      align-items: flex-end;
+      align-items: center;
+      height: 100vh;
       text-align: center;
     }
 
-    .email-container {
-      width: 100%;
-      padding: 30px 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(5px);
+    img {
+      max-width: 60%;
+      max-height: 65vh;
+      object-fit: contain;
     }
 
-    .email-container a {
-      color: #ffffff;
-      text-decoration: none;
+    .email {
+      margin-top: 30px;
       font-size: 22px;
       font-weight: 600;
+      color: #ffffff;
       letter-spacing: 1px;
     }
 
-    .email-container a:hover {
+    .email a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .email a:hover {
       opacity: 0.8;
     }
 
     @media (max-width: 768px) {
-      .email-container a {
+      img {
+        max-width: 85%;
+      }
+      .email {
         font-size: 18px;
       }
     }
-
   </style>
 </head>
 <body>
 
-  <div class="email-container">
+  <img src="https://files.catbox.moe/dd8om3.jpg" alt="TV Zeus">
+
+  <div class="email">
     <a href="mailto:tvzeys882@gmail.com">tvzeys882@gmail.com</a>
   </div>
 
