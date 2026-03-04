@@ -80,4 +80,5 @@ foreach ($cities as $labelGR => $query) {
 <?php } ?>
 
   </channel>
+
 </rss>
