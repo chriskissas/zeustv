@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<title>Weather Feed</title>
+<style>
+body{
+font-family: Arial;
+background:white;
+font-size:20px;
+}
+.city{
+margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="city" id="athens">Αθήνα: loading...</div>
+<div class="city" id="thess">Θεσσαλονίκη: loading...</div>
+<div class="city" id="patra">Πάτρα: loading...</div>
+<div class="city" id="heraklion">Ηράκλειο: loading...</div>
+<div class="city" id="larisa">Λάρισα: loading...</div>
+<div class="city" id="corfu">Κέρκυρα: loading...</div>
+
+<script>
+
+const api="92baaa4862b147cf88d133043250608"
+
+async function getWeather(city,id){
+
+let url=`https://api.weatherapi.com/v1/current.json?key=${api}&q=${city}`
+
+let data=await fetch(url)
+let json=await data.json()
+
+let temp=json.current.temp_c
+
+document.getElementById(id).innerText=
+`${city}: ${temp}°C`
+
+}
+
+getWeather("Athens","athens")
+getWeather("Thessaloniki","thess")
+getWeather("Patras","patra")
+getWeather("Heraklion","heraklion")
+getWeather("Larissa","larisa")
+getWeather("Corfu","corfu")
+
+</script>
+
+</body>
+</html>
