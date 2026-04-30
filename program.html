@@ -8,73 +8,103 @@
 
 <style>
 body {
-    margin: 0;
-    font-family: Inter;
-    background: #0b1622;
-    color: #e6edf3;
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background: linear-gradient(-45deg,#0b1622,#0f1f2f,#12263a,#0b1622);
+    background-size:400% 400%;
+    animation:bg 18s ease infinite;
+    color:#e6edf3;
+}
+
+@keyframes bg {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
 }
 
 .container {
-    max-width: 900px;
-    margin: 40px auto;
+    max-width:900px;
+    margin:40px auto;
+    position:relative;
 }
 
 .title {
-    text-align: center;
-    font-size: 40px;
-    font-weight: 600;
+    text-align:center;
+    font-size:42px;
+    font-weight:600;
 }
 
 .logo {
-    text-align: center;
+    text-align:center;
 }
 
 .logo img {
-    width: 120px;
-    margin-top: 10px;
+    width:120px;
+    margin-top:10px;
 }
 
 /* SEARCH */
 .search {
-    text-align: center;
-    margin: 25px 0;
+    text-align:center;
+    margin:20px 0;
 }
 
 input {
-    width: 60%;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    background: #12263a;
-    color: white;
-    font-size: 15px;
+    width:60%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    background:#12263a;
+    color:white;
 }
 
-/* LETTER SECTIONS */
+/* SIDEBAR A-Z */
+.sidebar {
+    position:fixed;
+    right:20px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.sidebar div {
+    cursor:pointer;
+    opacity:0.6;
+    font-size:14px;
+}
+
+.sidebar div:hover {
+    opacity:1;
+}
+
+/* LETTER */
 .letter {
-    margin-top: 25px;
-    font-weight: 600;
-    font-size: 20px;
-    border-bottom: 1px solid #2a445c;
-    padding-bottom: 5px;
+    margin-top:25px;
+    font-size:20px;
+    border-bottom:1px solid #2a445c;
 }
 
 /* WORD */
 .word {
-    padding: 10px;
-    border-bottom: 1px solid #1f3a52;
-    cursor: pointer;
+    padding:10px;
+    border-bottom:1px solid #1f3a52;
+    cursor:pointer;
+    transition:0.2s;
 }
 
 .word:hover {
-    background: #1b344a;
+    background:#1b344a;
+    padding-left:15px;
 }
 
 /* MODAL */
 .modal {
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.8);
+    backdrop-filter: blur(6px);
+    background:rgba(0,0,0,0.6);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -89,12 +119,19 @@ input {
 }
 
 .modal-box {
-    background:#0f1c2a;
-    padding:25px;
+    background:rgba(15,28,42,0.9);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:30px;
     width:700px;
+    border-radius:14px;
     max-height:80vh;
     overflow:auto;
-    border-radius:10px;
+    transform:scale(0.85);
+    transition:0.3s;
+}
+
+.modal.active .modal-box {
+    transform:scale(1);
 }
 
 .close {
@@ -102,17 +139,29 @@ input {
     cursor:pointer;
 }
 
+/* CONTENT */
+.modal h2 {
+    font-size:24px;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+.modal p {
+    font-size:16px;
+    line-height:1.6;
+}
+
 iframe {
     width:100%;
-    margin-top:10px;
+    margin-top:15px;
 }
 
 /* FOOTER */
 .footer {
-    text-align: center;
-    margin: 40px 0 20px;
-    font-size: 13px;
-    color: #8aa4bf;
+    text-align:center;
+    margin:40px 0;
+    font-size:13px;
+    color:#8aa4bf;
 }
 </style>
 </head>
@@ -128,7 +177,7 @@ iframe {
 </div>
 
 <div class="search">
-<input id="search" placeholder="Αναζήτηση λέξης...">
+<input id="search" placeholder="Αναζήτηση...">
 </div>
 
 <div id="list"></div>
@@ -138,6 +187,8 @@ iframe {
 </div>
 
 </div>
+
+<div class="sidebar" id="sidebar"></div>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
@@ -149,62 +200,88 @@ iframe {
 
 <script>
 
-let entries = [];
+let entries=[];
 
 fetch("data.txt")
 .then(r=>r.text())
 .then(text=>{
-
     entries = text.split(/\n(?=Ατάκα)/g).map(e=>{
         const title = e.split("\n")[0].replace(/Ατάκα[0-9]+:\s*/,"").trim();
-        return { title, full: e };
+        return {title,full:e};
     });
 
     render();
+    buildSidebar();
 });
 
-function render() {
+function render(){
+    const search=document.getElementById("search").value.toLowerCase();
+    let filtered = entries.filter(e=>e.title.toLowerCase().includes(search));
 
-    const search = document.getElementById("search").value.toLowerCase();
+    filtered.sort((a,b)=>a.title.localeCompare(b.title,'el'));
 
-    let filtered = entries.filter(e => e.title.toLowerCase().includes(search));
+    const list=document.getElementById("list");
+    list.innerHTML="";
 
-    // SORT A-Z
-    filtered.sort((a,b)=>a.title.localeCompare(b.title, 'el'));
+    let currentLetter="";
 
-    const list = document.getElementById("list");
-    list.innerHTML = "";
+    filtered.forEach(item=>{
+        let letter=item.title[0].toUpperCase();
 
-    let currentLetter = "";
-
-    filtered.forEach(item => {
-
-        let firstLetter = item.title[0].toUpperCase();
-
-        if(firstLetter !== currentLetter){
-            currentLetter = firstLetter;
-
-            let letterDiv = document.createElement("div");
-            letterDiv.className = "letter";
-            letterDiv.innerText = currentLetter;
-            list.appendChild(letterDiv);
+        if(letter!==currentLetter){
+            currentLetter=letter;
+            let l=document.createElement("div");
+            l.className="letter";
+            l.id="letter-"+letter;
+            l.innerText=letter;
+            list.appendChild(l);
         }
 
-        let div = document.createElement("div");
-        div.className = "word";
-        div.innerText = item.title;
+        let div=document.createElement("div");
+        div.className="word";
 
-        div.onclick = () => {
+        // highlight search
+        let title=item.title;
+        if(search){
+            title = title.replace(new RegExp(search,"gi"), m=>`<span style="color:#58a6ff">${m}</span>`);
+        }
+
+        div.innerHTML=title;
+
+        div.onclick=()=>{
             document.getElementById("modal").classList.add("active");
-            document.getElementById("content").innerHTML =
-                `<pre style="white-space: pre-wrap;">${item.full}</pre>`;
+
+            let clean=item.full
+                .replace(/Ατάκα[0-9]+:\s*/,"")
+                .replace("Περιγραφή:","");
+
+            document.getElementById("content").innerHTML=`
+                <h2>${item.title}</h2>
+                <p>${clean}</p>
+            `;
         };
 
         list.appendChild(div);
     });
 }
 
-document.getElementById("search").addEventListener("input", render);
+function buildSidebar(){
+    const letters=[...new Set(entries.map(e=>e.title[0].toUpperCase()))];
+
+    const sb=document.getElementById("sidebar");
+
+    letters.forEach(l=>{
+        let div=document.createElement("div");
+        div.innerText=l;
+        div.onclick=()=>{
+            const el=document.getElementById("letter-"+l);
+            if(el) el.scrollIntoView({behavior:"smooth"});
+        };
+        sb.appendChild(div);
+    });
+}
+
+document.getElementById("search").addEventListener("input",render);
 
 function closeModal(){
     document.getElementById("modal").classList.remove("active");
