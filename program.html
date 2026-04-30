@@ -11,33 +11,63 @@ body {
     margin: 0;
     font-family: Inter;
     background: #0b1622;
-    color: white;
+    color: #e6edf3;
 }
 
 .container {
     max-width: 900px;
-    margin: 50px auto;
-    text-align: center;
+    margin: 40px auto;
 }
 
 .title {
+    text-align: center;
     font-size: 40px;
+    font-weight: 600;
+}
+
+.logo {
+    text-align: center;
 }
 
 .logo img {
-    width: 130px;
+    width: 120px;
     margin-top: 10px;
 }
 
-.word {
+/* SEARCH */
+.search {
+    text-align: center;
+    margin: 25px 0;
+}
+
+input {
+    width: 60%;
     padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #12263a;
+    color: white;
+    font-size: 15px;
+}
+
+/* LETTER SECTIONS */
+.letter {
+    margin-top: 25px;
+    font-weight: 600;
+    font-size: 20px;
+    border-bottom: 1px solid #2a445c;
+    padding-bottom: 5px;
+}
+
+/* WORD */
+.word {
+    padding: 10px;
     border-bottom: 1px solid #1f3a52;
     cursor: pointer;
-    text-align:left;
 }
 
 .word:hover {
-    background:#1b344a;
+    background: #1b344a;
 }
 
 /* MODAL */
@@ -60,11 +90,16 @@ body {
 
 .modal-box {
     background:#0f1c2a;
-    padding:30px;
+    padding:25px;
     width:700px;
     max-height:80vh;
     overflow:auto;
     border-radius:10px;
+}
+
+.close {
+    float:right;
+    cursor:pointer;
 }
 
 iframe {
@@ -72,9 +107,12 @@ iframe {
     margin-top:10px;
 }
 
-.close {
-    float:right;
-    cursor:pointer;
+/* FOOTER */
+.footer {
+    text-align: center;
+    margin: 40px 0 20px;
+    font-size: 13px;
+    color: #8aa4bf;
 }
 </style>
 </head>
@@ -82,15 +120,26 @@ iframe {
 <body>
 
 <div class="container">
+
 <div class="title">tioumpa.gr</div>
 
 <div class="logo">
-<img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
+<img src="https://i.ibb.co/Kc71Qq7L/New-Project-22.png">
+</div>
+
+<div class="search">
+<input id="search" placeholder="Αναζήτηση λέξης...">
 </div>
 
 <div id="list"></div>
+
+<div class="footer">
+Αν θέλετε να επικοινωνήσετε μαζί μας για οποιαδήποτε αλλαγή και πρόσθεση στείλτε μας μήνυμα στο: tioumpa@gmail.com
 </div>
 
+</div>
+
+<!-- MODAL -->
 <div class="modal" id="modal">
 <div class="modal-box">
 <span class="close" onclick="closeModal()">✖</span>
@@ -100,33 +149,62 @@ iframe {
 
 <script>
 
+let entries = [];
+
 fetch("data.txt")
 .then(r=>r.text())
 .then(text=>{
 
-    // ΚΡΑΤΑΜΕ ΟΛΟ ΤΟ BLOCK ΑΚΡΙΒΩΣ
-    const entries = text.split(/\n(?=Ατάκα)/g);
+    entries = text.split(/\n(?=Ατάκα)/g).map(e=>{
+        const title = e.split("\n")[0].replace(/Ατάκα[0-9]+:\s*/,"").trim();
+        return { title, full: e };
+    });
+
+    render();
+});
+
+function render() {
+
+    const search = document.getElementById("search").value.toLowerCase();
+
+    let filtered = entries.filter(e => e.title.toLowerCase().includes(search));
+
+    // SORT A-Z
+    filtered.sort((a,b)=>a.title.localeCompare(b.title, 'el'));
 
     const list = document.getElementById("list");
+    list.innerHTML = "";
 
-    entries.forEach(e=>{
-        const title = e.split("\n")[0].replace(/Ατάκα[0-9]+:\s*/,"");
+    let currentLetter = "";
 
-        let div=document.createElement("div");
-        div.className="word";
-        div.innerText=title;
+    filtered.forEach(item => {
 
-        div.onclick=()=>{
+        let firstLetter = item.title[0].toUpperCase();
+
+        if(firstLetter !== currentLetter){
+            currentLetter = firstLetter;
+
+            let letterDiv = document.createElement("div");
+            letterDiv.className = "letter";
+            letterDiv.innerText = currentLetter;
+            list.appendChild(letterDiv);
+        }
+
+        let div = document.createElement("div");
+        div.className = "word";
+        div.innerText = item.title;
+
+        div.onclick = () => {
             document.getElementById("modal").classList.add("active");
-            document.getElementById("content").innerHTML = `
-                <pre style="white-space: pre-wrap; font-family: Inter;">${e}</pre>
-            `;
+            document.getElementById("content").innerHTML =
+                `<pre style="white-space: pre-wrap;">${item.full}</pre>`;
         };
 
         list.appendChild(div);
     });
+}
 
-});
+document.getElementById("search").addEventListener("input", render);
 
 function closeModal(){
     document.getElementById("modal").classList.remove("active");
