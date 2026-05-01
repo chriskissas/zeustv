@@ -2,9 +2,10 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>tioumpa.gr</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
 body {
@@ -14,31 +15,69 @@ body {
     color:#e6edf3;
 }
 
+/* HEADER */
+.header {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 20px;
+    border-bottom:1px solid #1f3a52;
+    cursor:pointer;
+}
+
+.header img {
+    height:40px;
+    animation:float 3s infinite;
+}
+
+@keyframes float {
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-5px);}
+}
+
 /* LAYOUT */
 .app {
     display:flex;
-    height:100vh;
+    height:calc(100vh - 60px);
 }
 
-/* SIDEBAR */
 .sidebar {
-    width:280px;
-    background:#0f1f2f;
+    width:260px;
     border-right:1px solid #1f3a52;
     overflow:auto;
-    padding:15px;
+    padding:10px;
+}
+
+.content {
+    flex:1;
+    padding:20px;
+    overflow:auto;
+}
+
+/* SEARCH */
+.search {
+    display:flex;
+    gap:5px;
 }
 
 .search input {
-    width:100%;
+    flex:1;
     padding:10px;
-    margin:10px 0;
-    border-radius:8px;
     border:none;
+    border-radius:8px;
     background:#12263a;
     color:white;
 }
 
+.search button {
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    background:#1b344a;
+    color:white;
+}
+
+/* WORD */
 .word {
     padding:8px;
     cursor:pointer;
@@ -48,110 +87,86 @@ body {
     background:#1b344a;
 }
 
-/* CONTENT */
-.content {
-    flex:1;
-    padding:40px;
-    overflow:auto;
-}
-
-/* ENTRY */
-.entry-title {
-    font-size:32px;
-    font-style:italic; /* 👈 όπως ζήτησες */
-    font-weight:400;
-    margin-bottom:20px;
-    animation:fadeIn 0.4s ease;
-}
-
-.entry-body {
-    white-space:pre-wrap;
-    line-height:1.7;
-    font-size:16px;
-    animation:fadeIn 0.4s ease;
-}
-
-/* ANIMATIONS */
-@keyframes fadeIn {
-    from {opacity:0; transform:translateY(10px);}
-    to {opacity:1; transform:translateY(0);}
+/* LETTER */
+.letter {
+    margin-top:10px;
+    font-weight:bold;
+    border-bottom:1px solid #2a445c;
 }
 
 /* HOME */
 .home {
     text-align:center;
-    margin-top:80px;
+    margin-top:50px;
 }
 
-/* PUZZLE LOGO */
-.puzzle {
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:10px;
+.home img {
+    width:180px;
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.05);}
+}
+
+.random {
     margin-top:20px;
+    font-size:20px;
+    color:#58a6ff;
+    animation:fade 1s;
 }
 
-.tile {
-    width:60px;
-    height:60px;
-    background:#12263a;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:24px;
-    border-radius:8px;
-    animation:float 3s infinite ease-in-out;
+@keyframes fade {
+    from{opacity:0;}
+    to{opacity:1;}
 }
 
-.tile:nth-child(odd){ animation-delay:0.3s; }
-
-@keyframes float {
-    0%,100%{ transform:translateY(0); }
-    50%{ transform:translateY(-10px); }
+/* ENTRY */
+.entry-title {
+    font-size:28px;
+    font-style:italic;
 }
 
-/* TABLE */
-table {
-    margin-top:15px;
-    border-collapse: collapse;
-    width:100%;
+.entry-body {
+    margin-top:10px;
+    white-space:pre-wrap;
 }
 
-td, th {
-    border:1px solid #2a445c;
-    padding:6px;
-    text-align:center;
-}
+/* MOBILE */
+@media(max-width:800px){
+    .app {
+        flex-direction:column;
+    }
 
-/* FOOTER */
-.footer {
-    text-align:center;
-    margin-top:40px;
-    font-size:13px;
-    color:#8aa4bf;
+    .sidebar {
+        width:100%;
+        height:200px;
+    }
 }
 </style>
 </head>
 
 <body>
 
+<div class="header" onclick="goHome()">
+<img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
+<strong>tioumpa.gr</strong>
+</div>
+
 <div class="app">
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-
-<h2>tioumpa.gr</h2>
 
 <div class="search">
 <input id="search" placeholder="Αναζήτηση...">
+<button onclick="voiceSearch()">🎤</button>
 </div>
 
 <div id="list"></div>
 
 </div>
 
-<!-- CONTENT -->
 <div class="content" id="content"></div>
 
 </div>
@@ -170,31 +185,54 @@ fetch("data.txt")
 
     renderList();
     showHome();
+    randomWordLoop();
 });
 
 /* HOME */
 function showHome(){
     document.getElementById("content").innerHTML = `
         <div class="home">
-            <h1>tioumpa.gr</h1>
-            <div class="puzzle">
-                ${"Τιουμπagr".split("").map(l=>`<div class="tile">${l}</div>`).join("")}
-            </div>
+            <img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
+            <div class="random" id="randomWord"></div>
         </div>
     `;
 }
 
+/* RANDOM WORD */
+function randomWordLoop(){
+    setInterval(()=>{
+        if(!entries.length) return;
+        const w = entries[Math.floor(Math.random()*entries.length)].title;
+        const el = document.getElementById("randomWord");
+        if(el){
+            el.innerText = w;
+        }
+    },2000);
+}
+
 /* LIST */
 function renderList(){
-    const list=document.getElementById("list");
     const search=document.getElementById("search").value.toLowerCase();
+    let filtered = entries.filter(e=>e.title.toLowerCase().includes(search));
 
+    filtered.sort((a,b)=>a.title.localeCompare(b.title,'el'));
+
+    const list=document.getElementById("list");
     list.innerHTML="";
 
-    entries
-    .filter(e=>e.title.toLowerCase().includes(search))
-    .sort((a,b)=>a.title.localeCompare(b.title,'el'))
-    .forEach(item=>{
+    let currentLetter="";
+
+    filtered.forEach(item=>{
+        let letter=item.title[0].toUpperCase();
+
+        if(letter!==currentLetter){
+            currentLetter=letter;
+            let l=document.createElement("div");
+            l.className="letter";
+            l.innerText=letter;
+            list.appendChild(l);
+        }
+
         let div=document.createElement("div");
         div.className="word";
         div.innerText=item.title;
@@ -205,8 +243,6 @@ function renderList(){
     });
 }
 
-document.getElementById("search").addEventListener("input",renderList);
-
 /* ENTRY */
 function openEntry(entry){
 
@@ -215,30 +251,31 @@ function openEntry(entry){
 
     let clean = lines.join("\n").replace("Περιγραφή:", "");
 
-    // 🔥 AUTO TABLE (basic detection)
-    let tableHTML = "";
-
-    if(clean.toLowerCase().includes("ουσιαστικό")){
-        tableHTML = `
-        <table>
-        <tr><th></th><th>Ενικός</th><th>Πληθυντικός</th></tr>
-        <tr><td>Ονομαστική</td><td>-</td><td>-</td></tr>
-        <tr><td>Γενική</td><td>-</td><td>-</td></tr>
-        <tr><td>Αιτιατική</td><td>-</td><td>-</td></tr>
-        <tr><td>Κλητική</td><td>-</td><td>-</td></tr>
-        </table>
-        `;
-    }
-
     document.getElementById("content").innerHTML = `
         <div class="entry-title">${entry.title}</div>
         <div class="entry-body">${clean}</div>
-        ${tableHTML}
-        <div class="footer">
-        Αν θέλετε να επικοινωνήσετε μαζί μας για οποιαδήποτε αλλαγή και πρόσθεση στείλτε μας μήνυμα στο: tioumpa@gmail.com
-        </div>
     `;
 }
+
+/* BACK */
+function goHome(){
+    showHome();
+}
+
+/* VOICE SEARCH */
+function voiceSearch(){
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "el-GR";
+
+    recognition.onresult = function(event){
+        document.getElementById("search").value = event.results[0][0].transcript;
+        renderList();
+    };
+
+    recognition.start();
+}
+
+document.getElementById("search").addEventListener("input",renderList);
 
 </script>
 
