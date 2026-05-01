@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
 <title>tioumpa.gr</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
 body {
@@ -33,7 +33,7 @@ body {
 }
 
 .sidebar {
-    width:320px; /* πιο μεγάλο */
+    width:320px;
     border-right:1px solid #1f3a52;
     overflow:auto;
     padding:15px;
@@ -43,6 +43,46 @@ body {
     flex:1;
     padding:30px;
     overflow:auto;
+}
+
+/* SEARCH */
+.search-wrapper {
+    position:relative;
+    display:flex;
+    justify-content:center;
+    margin-top:20px;
+}
+
+.search-wrapper input {
+    width:60%;
+    padding:12px 40px;
+    border-radius:12px;
+    border:none;
+    background:#12263a;
+    color:white;
+    font-family:Helvetica, Arial;
+    transition:0.3s;
+}
+
+.search-wrapper input:focus {
+    width:65%;
+}
+
+.search-icon {
+    position:absolute;
+    left:calc(20% + 10px);
+    top:50%;
+    transform:translateY(-50%);
+    width:16px;
+    filter:invert(1);
+}
+
+.mic {
+    position:absolute;
+    right:calc(20% + 10px);
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
 }
 
 /* LETTER */
@@ -57,7 +97,6 @@ body {
     padding:10px;
     cursor:pointer;
 }
-
 .word:hover {
     background:#1b344a;
 }
@@ -68,43 +107,20 @@ body {
     margin-top:40px;
 }
 
-.home img {
-    width:180px;
-}
-
-/* TITLE TEXT */
 .subtitle {
-    margin-top:10px;
     font-size:14px;
     color:#8aa4bf;
 }
 
-/* SEARCH */
-.search-box {
-    margin-top:20px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
-}
-
-.search-box input {
-    width:60%;
-    padding:12px;
-    border-radius:12px;
-    border:none;
-    background:#12263a;
-    color:white;
-}
-
-.search-icon {
-    width:20px;
-    filter:invert(1);
+.email {
+    font-size:12px;
+    margin-top:5px;
+    color:#6f8aa5;
 }
 
 /* BUBBLES */
 .bubbles {
-    margin-top:30px;
+    margin-top:20px;
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
@@ -114,36 +130,53 @@ body {
 .bubble {
     padding:10px 15px;
     border-radius:20px;
-    backdrop-filter: blur(10px);
     background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.1);
-    animation:fade 6s forwards;
+    backdrop-filter:blur(10px);
+    animation:move 6s linear forwards;
 }
 
-@keyframes fade {
-    0%{opacity:0; transform:scale(0.8);}
-    20%{opacity:1;}
-    80%{opacity:1;}
-    100%{opacity:0; transform:scale(1.1);}
+@keyframes move {
+    0% {transform:translate(0,0);}
+    25% {transform:translate(20px,-10px);}
+    50% {transform:translate(-15px,15px);}
+    75% {transform:translate(10px,5px);}
+    100% {transform:translate(0,0); opacity:0;}
 }
 
 /* ENTRY */
 .entry-title {
     font-size:30px;
     font-style:italic;
-    animation:slide 0.4s ease;
+    animation:fade 0.4s;
 }
 
 .entry-divider {
-    margin:10px 0;
     height:1px;
     background:#2a445c;
+    margin:10px 0 20px;
 }
 
 .entry-body {
-    margin-top:10px;
     white-space:pre-wrap;
-    animation:slide 0.5s ease;
+    line-height:1.8;
+}
+
+.entry-container {
+    display:flex;
+    gap:20px;
+}
+
+.entry-text {
+    flex:2;
+}
+
+.entry-img {
+    flex:1;
+}
+
+.entry-img img {
+    width:100%;
+    border-radius:10px;
 }
 
 iframe {
@@ -151,15 +184,16 @@ iframe {
     width:100%;
 }
 
-@keyframes slide {
-    from {opacity:0; transform:translateY(10px);}
-    to {opacity:1; transform:translateY(0);}
+@keyframes fade {
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1;}
 }
 
 /* MOBILE */
 @media(max-width:800px){
     .app {flex-direction:column;}
     .sidebar {width:100%; height:200px;}
+    .entry-container {flex-direction:column;}
 }
 </style>
 </head>
@@ -194,13 +228,19 @@ fetch("data.txt")
     });
 
     renderList();
-    showHome();
+    route();
     bubbleLoop();
 });
 
-/* CLEAN LETTER */
-function getLetter(str){
-    return str.replace(/[^Α-Ωα-ωA-Za-z]/g,"").charAt(0).toUpperCase();
+/* ROUTER */
+window.addEventListener("hashchange",route);
+
+function route(){
+    let name=decodeURIComponent(location.hash.replace("#",""));
+    if(!name) return showHome();
+
+    let entry=entries.find(e=>e.title===name);
+    if(entry) openEntry(entry);
 }
 
 /* LIST */
@@ -213,7 +253,7 @@ function renderList(){
     let current="";
 
     sorted.forEach(item=>{
-        let l=getLetter(item.title);
+        let l=item.title[0].toUpperCase();
 
         if(l!==current){
             current=l;
@@ -226,7 +266,7 @@ function renderList(){
         let w=document.createElement("div");
         w.className="word";
         w.innerText=item.title;
-        w.onclick=()=>openEntry(item);
+        w.onclick=()=>location.hash=item.title;
 
         list.appendChild(w);
     });
@@ -239,52 +279,45 @@ function showHome(){
             <img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
             <h2>tioumpa.gr</h2>
             <div class="subtitle">ΤΟ ΛΕΞΙΚΟ ΤΟΥ TEOSTY</div>
+            <div class="email">tioumpa@gmail.com</div>
 
-            <div class="search-box">
+            <div class="search-wrapper">
                 <img class="search-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/user-interface/search-icon.png">
                 <input id="searchMain" placeholder="Αναζήτηση...">
+                <span class="mic" onclick="voice()">🎤</span>
             </div>
 
+            <div style="margin-top:15px; font-size:13px;">τυχαιες λεξεις</div>
             <div class="bubbles" id="bubbles"></div>
         </div>
     `;
 
-    document.getElementById("searchMain").addEventListener("input", e=>{
-        filterList(e.target.value);
+    document.getElementById("searchMain").addEventListener("input",e=>{
+        filter(e.target.value);
     });
 }
 
 /* FILTER */
-function filterList(q){
+function filter(q){
     q=q.toLowerCase();
     document.querySelectorAll(".word").forEach(el=>{
         el.style.display = el.innerText.toLowerCase().includes(q) ? "block":"none";
     });
 }
 
-/* BUBBLES FIXED */
+/* BUBBLES */
 function bubbleLoop(){
     setInterval(()=>{
-        const container=document.getElementById("bubbles");
-        if(!container) return;
-
-        container.innerHTML="";
-
-        let used=[];
+        const c=document.getElementById("bubbles");
+        if(!c) return;
+        c.innerHTML="";
 
         for(let i=0;i<6;i++){
-            let word;
-            do{
-                word=entries[Math.floor(Math.random()*entries.length)].title;
-            } while(used.includes(word));
-
-            used.push(word);
-
+            let w=entries[Math.floor(Math.random()*entries.length)].title;
             let div=document.createElement("div");
             div.className="bubble";
-            div.innerText=word;
-
-            container.appendChild(div);
+            div.innerText=w;
+            c.appendChild(div);
         }
 
     },6000);
@@ -293,20 +326,39 @@ function bubbleLoop(){
 /* ENTRY */
 function openEntry(entry){
 
-    let lines = entry.full.split("\n");
+    let lines=entry.full.split("\n");
     lines.shift();
 
-    let clean = lines.join("\n").replace("Περιγραφή:", "");
+    let clean=lines.join("\n").replace("Περιγραφή:","");
 
-    document.getElementById("content").innerHTML = `
+    let imgMatch=clean.match(/https?:\/\/.*\.(jpg|png|jpeg|gif)/);
+    let imgHTML = imgMatch ? `<img src="${imgMatch[0]}">` : "";
+
+    document.getElementById("content").innerHTML=`
         <div class="entry-title">${entry.title}</div>
         <div class="entry-divider"></div>
-        <div class="entry-body">${clean}</div>
+
+        <div class="entry-container">
+            <div class="entry-text">${clean}</div>
+            <div class="entry-img">${imgHTML}</div>
+        </div>
     `;
+}
+
+/* VOICE */
+function voice(){
+    const r=new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+    r.lang="el-GR";
+    r.onresult=e=>{
+        document.getElementById("searchMain").value=e.results[0][0].transcript;
+        filter(e.results[0][0].transcript);
+    };
+    r.start();
 }
 
 /* BACK */
 function goHome(){
+    location.hash="";
     showHome();
 }
 
