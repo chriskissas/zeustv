@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>tioumpa.gr</title>
+<title>tioumpa.org</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -77,13 +77,12 @@ body {
     filter:invert(1);
 }
 
-.mic {
-    position:absolute;
-    right:calc(20% + 10px);
-    top:50%;
-    transform:translateY(-50%);
+/* WORD */
+.word {
+    padding:10px;
     cursor:pointer;
 }
+.word:hover { background:#1b344a; }
 
 /* LETTER */
 .letter {
@@ -92,108 +91,49 @@ body {
     border-bottom:1px solid #2a445c;
 }
 
-/* WORD */
-.word {
-    padding:10px;
-    cursor:pointer;
-}
-.word:hover {
-    background:#1b344a;
-}
-
 /* HOME */
 .home {
     text-align:center;
     margin-top:40px;
 }
 
-.subtitle {
-    font-size:14px;
-    color:#8aa4bf;
-}
-
-.email {
-    font-size:12px;
-    margin-top:5px;
-    color:#6f8aa5;
-}
-
-/* BUBBLES */
 .bubbles {
     margin-top:20px;
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
-    gap:15px;
+    gap:10px;
 }
 
 .bubble {
-    padding:10px 15px;
+    padding:8px 12px;
     border-radius:20px;
     background:rgba(255,255,255,0.08);
-    backdrop-filter:blur(10px);
-    animation:move 6s linear forwards;
+    animation:move 6s forwards;
 }
 
 @keyframes move {
-    0% {transform:translate(0,0);}
-    25% {transform:translate(20px,-10px);}
-    50% {transform:translate(-15px,15px);}
-    75% {transform:translate(10px,5px);}
-    100% {transform:translate(0,0); opacity:0;}
+    0%{transform:translate(0,0);}
+    50%{transform:translate(20px,-10px);}
+    100%{opacity:0;}
 }
 
 /* ENTRY */
 .entry-title {
     font-size:30px;
     font-style:italic;
-    animation:fade 0.4s;
 }
 
 .entry-divider {
     height:1px;
     background:#2a445c;
-    margin:10px 0 20px;
+    margin:10px 0;
 }
 
-.entry-body {
-    white-space:pre-wrap;
-    line-height:1.8;
-}
-
-.entry-container {
-    display:flex;
-    gap:20px;
-}
-
-.entry-text {
-    flex:2;
-}
-
-.entry-img {
-    flex:1;
-}
-
-.entry-img img {
-    width:100%;
-    border-radius:10px;
-}
-
-iframe {
-    margin-top:20px;
-    width:100%;
-}
-
-@keyframes fade {
-    from{opacity:0; transform:translateY(10px);}
-    to{opacity:1;}
-}
-
-/* MOBILE */
-@media(max-width:800px){
-    .app {flex-direction:column;}
-    .sidebar {width:100%; height:200px;}
-    .entry-container {flex-direction:column;}
+/* FAVORITE */
+.star {
+    cursor:pointer;
+    font-size:20px;
 }
 </style>
 </head>
@@ -202,7 +142,7 @@ iframe {
 
 <div class="header" onclick="goHome()">
 <img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png" height="40">
-<strong>tioumpa.gr</strong>
+<strong>tioumpa.org</strong>
 </div>
 
 <div class="app">
@@ -218,6 +158,8 @@ iframe {
 <script>
 
 let entries=[];
+let clicks=JSON.parse(localStorage.getItem("clicks")||"{}");
+let favorites=JSON.parse(localStorage.getItem("favorites")||"[]");
 
 fetch("data.txt")
 .then(r=>r.text())
@@ -228,19 +170,40 @@ fetch("data.txt")
     });
 
     renderList();
-    route();
-    bubbleLoop();
+    showHome();
 });
 
-/* ROUTER */
-window.addEventListener("hashchange",route);
+/* HOME */
+function showHome(){
 
-function route(){
-    let name=decodeURIComponent(location.hash.replace("#",""));
-    if(!name) return showHome();
+    let trending = Object.entries(clicks)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,5)
+        .map(e=>`<div>${e[0]}</div>`).join("");
 
-    let entry=entries.find(e=>e.title===name);
-    if(entry) openEntry(entry);
+    document.getElementById("content").innerHTML = `
+        <div class="home">
+            <img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png" width="150">
+            <h2>tioumpa.org</h2>
+
+            <div class="search-wrapper">
+                <img class="search-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/user-interface/search-icon.png">
+                <input id="searchMain" placeholder="Αναζήτηση...">
+            </div>
+
+            <h3>🔥 Trending</h3>
+            ${trending}
+
+            <h3>⭐ Favorites</h3>
+            ${favorites.map(f=>`<div>${f}</div>`).join("")}
+
+            <div class="bubbles" id="bubbles"></div>
+        </div>
+    `;
+
+    document.getElementById("searchMain").addEventListener("input",e=>{
+        filter(e.target.value);
+    });
 }
 
 /* LIST */
@@ -272,29 +235,52 @@ function renderList(){
     });
 }
 
-/* HOME */
-function showHome(){
-    document.getElementById("content").innerHTML = `
-        <div class="home">
-            <img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
-            <h2>tioumpa.gr</h2>
-            <div class="subtitle">ΤΟ ΛΕΞΙΚΟ ΤΟΥ TEOSTY</div>
-            <div class="email">tioumpa@gmail.com</div>
+/* ROUTER */
+window.addEventListener("hashchange",route);
 
-            <div class="search-wrapper">
-                <img class="search-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/user-interface/search-icon.png">
-                <input id="searchMain" placeholder="Αναζήτηση...">
-                <span class="mic" onclick="voice()">🎤</span>
-            </div>
+function route(){
+    let name=decodeURIComponent(location.hash.replace("#",""));
+    if(!name) return showHome();
 
-            <div style="margin-top:15px; font-size:13px;">τυχαιες λεξεις</div>
-            <div class="bubbles" id="bubbles"></div>
+    let entry=entries.find(e=>e.title===name);
+    if(entry) openEntry(entry);
+}
+
+/* ENTRY */
+function openEntry(entry){
+
+    clicks[entry.title]=(clicks[entry.title]||0)+1;
+    localStorage.setItem("clicks",JSON.stringify(clicks));
+
+    let isFav = favorites.includes(entry.title);
+
+    let lines=entry.full.split("\n");
+    lines.shift();
+
+    let clean=lines.join("\n").replace("Περιγραφή:","");
+
+    document.getElementById("content").innerHTML=`
+        <div class="entry-title">
+            ${entry.title}
+            <span class="star" onclick="toggleFav('${entry.title}')">
+                ${isFav?"⭐":"☆"}
+            </span>
         </div>
-    `;
 
-    document.getElementById("searchMain").addEventListener("input",e=>{
-        filter(e.target.value);
-    });
+        <div class="entry-divider"></div>
+        <div>${clean}</div>
+    `;
+}
+
+/* FAVORITES */
+function toggleFav(word){
+    if(favorites.includes(word)){
+        favorites=favorites.filter(f=>f!==word);
+    } else {
+        favorites.push(word);
+    }
+    localStorage.setItem("favorites",JSON.stringify(favorites));
+    route();
 }
 
 /* FILTER */
@@ -303,57 +289,6 @@ function filter(q){
     document.querySelectorAll(".word").forEach(el=>{
         el.style.display = el.innerText.toLowerCase().includes(q) ? "block":"none";
     });
-}
-
-/* BUBBLES */
-function bubbleLoop(){
-    setInterval(()=>{
-        const c=document.getElementById("bubbles");
-        if(!c) return;
-        c.innerHTML="";
-
-        for(let i=0;i<6;i++){
-            let w=entries[Math.floor(Math.random()*entries.length)].title;
-            let div=document.createElement("div");
-            div.className="bubble";
-            div.innerText=w;
-            c.appendChild(div);
-        }
-
-    },6000);
-}
-
-/* ENTRY */
-function openEntry(entry){
-
-    let lines=entry.full.split("\n");
-    lines.shift();
-
-    let clean=lines.join("\n").replace("Περιγραφή:","");
-
-    let imgMatch=clean.match(/https?:\/\/.*\.(jpg|png|jpeg|gif)/);
-    let imgHTML = imgMatch ? `<img src="${imgMatch[0]}">` : "";
-
-    document.getElementById("content").innerHTML=`
-        <div class="entry-title">${entry.title}</div>
-        <div class="entry-divider"></div>
-
-        <div class="entry-container">
-            <div class="entry-text">${clean}</div>
-            <div class="entry-img">${imgHTML}</div>
-        </div>
-    `;
-}
-
-/* VOICE */
-function voice(){
-    const r=new (window.SpeechRecognition||window.webkitSpeechRecognition)();
-    r.lang="el-GR";
-    r.onresult=e=>{
-        document.getElementById("searchMain").value=e.results[0][0].transcript;
-        filter(e.results[0][0].transcript);
-    };
-    r.start();
 }
 
 /* BACK */
