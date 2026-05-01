@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>tioumpa.gr</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
 body {
@@ -27,14 +27,6 @@ body {
     border-right:1px solid #1f3a52;
     overflow:auto;
     padding:15px;
-}
-
-.logo {
-    text-align:center;
-}
-
-.logo img {
-    width:100px;
 }
 
 .search input {
@@ -63,27 +55,81 @@ body {
     overflow:auto;
 }
 
+/* ENTRY */
 .entry-title {
     font-size:32px;
-    font-weight:600;
+    font-style:italic; /* 👈 όπως ζήτησες */
+    font-weight:400;
     margin-bottom:20px;
+    animation:fadeIn 0.4s ease;
 }
 
 .entry-body {
     white-space:pre-wrap;
     line-height:1.7;
     font-size:16px;
+    animation:fadeIn 0.4s ease;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    from {opacity:0; transform:translateY(10px);}
+    to {opacity:1; transform:translateY(0);}
 }
 
 /* HOME */
 .home {
     text-align:center;
-    margin-top:100px;
+    margin-top:80px;
 }
 
-iframe {
-    width:100%;
+/* PUZZLE LOGO */
+.puzzle {
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px;
     margin-top:20px;
+}
+
+.tile {
+    width:60px;
+    height:60px;
+    background:#12263a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    border-radius:8px;
+    animation:float 3s infinite ease-in-out;
+}
+
+.tile:nth-child(odd){ animation-delay:0.3s; }
+
+@keyframes float {
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-10px); }
+}
+
+/* TABLE */
+table {
+    margin-top:15px;
+    border-collapse: collapse;
+    width:100%;
+}
+
+td, th {
+    border:1px solid #2a445c;
+    padding:6px;
+    text-align:center;
+}
+
+/* FOOTER */
+.footer {
+    text-align:center;
+    margin-top:40px;
+    font-size:13px;
+    color:#8aa4bf;
 }
 </style>
 </head>
@@ -95,10 +141,7 @@ iframe {
 <!-- SIDEBAR -->
 <div class="sidebar">
 
-<div class="logo">
 <h2>tioumpa.gr</h2>
-<img src="https://i.ibb.co/Kc71Qq7L/New-Project-22.png">
-</div>
 
 <div class="search">
 <input id="search" placeholder="Αναζήτηση...">
@@ -108,15 +151,8 @@ iframe {
 
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="content" id="content">
-
-<div class="home">
-<h1>Καλώς ήρθες στο tioumpa.gr</h1>
-<p>Επίλεξε μια λέξη από αριστερά</p>
-</div>
-
-</div>
+<!-- CONTENT -->
+<div class="content" id="content"></div>
 
 </div>
 
@@ -133,8 +169,20 @@ fetch("data.txt")
     });
 
     renderList();
-    handleRoute();
+    showHome();
 });
+
+/* HOME */
+function showHome(){
+    document.getElementById("content").innerHTML = `
+        <div class="home">
+            <h1>tioumpa.gr</h1>
+            <div class="puzzle">
+                ${"Τιουμπagr".split("").map(l=>`<div class="tile">${l}</div>`).join("")}
+            </div>
+        </div>
+    `;
+}
 
 /* LIST */
 function renderList(){
@@ -151,9 +199,7 @@ function renderList(){
         div.className="word";
         div.innerText=item.title;
 
-        div.onclick=()=>{
-            location.hash = item.title;
-        };
+        div.onclick=()=>openEntry(item);
 
         list.appendChild(div);
     });
@@ -161,34 +207,36 @@ function renderList(){
 
 document.getElementById("search").addEventListener("input",renderList);
 
-/* ROUTER */
-window.addEventListener("hashchange",handleRoute);
-
-function handleRoute(){
-
-    const name = decodeURIComponent(location.hash.replace("#",""));
-
-    const entry = entries.find(e=>e.title===name);
-
-    if(!entry){
-        document.getElementById("content").innerHTML = `
-            <div class="home">
-                <h1>tioumpa.gr</h1>
-                <p>Επίλεξε μια λέξη</p>
-            </div>
-        `;
-        return;
-    }
+/* ENTRY */
+function openEntry(entry){
 
     let lines = entry.full.split("\n");
-    lines.shift(); // remove ΑτάκαΧ:
+    lines.shift();
 
-    let clean = lines.join("\n");
-    clean = clean.replace("Περιγραφή:", "");
+    let clean = lines.join("\n").replace("Περιγραφή:", "");
+
+    // 🔥 AUTO TABLE (basic detection)
+    let tableHTML = "";
+
+    if(clean.toLowerCase().includes("ουσιαστικό")){
+        tableHTML = `
+        <table>
+        <tr><th></th><th>Ενικός</th><th>Πληθυντικός</th></tr>
+        <tr><td>Ονομαστική</td><td>-</td><td>-</td></tr>
+        <tr><td>Γενική</td><td>-</td><td>-</td></tr>
+        <tr><td>Αιτιατική</td><td>-</td><td>-</td></tr>
+        <tr><td>Κλητική</td><td>-</td><td>-</td></tr>
+        </table>
+        `;
+    }
 
     document.getElementById("content").innerHTML = `
         <div class="entry-title">${entry.title}</div>
         <div class="entry-body">${clean}</div>
+        ${tableHTML}
+        <div class="footer">
+        Αν θέλετε να επικοινωνήσετε μαζί μας για οποιαδήποτε αλλαγή και πρόσθεση στείλτε μας μήνυμα στο: tioumpa@gmail.com
+        </div>
     `;
 }
 
