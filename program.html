@@ -27,12 +27,6 @@ body {
 
 .header img {
     height:40px;
-    animation:float 3s infinite;
-}
-
-@keyframes float {
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-5px);}
 }
 
 /* LAYOUT */
@@ -54,26 +48,18 @@ body {
     overflow:auto;
 }
 
-/* SEARCH */
-.search {
-    display:flex;
-    gap:5px;
+/* SEARCH MAIN */
+.main-search {
+    text-align:center;
+    margin-top:20px;
 }
 
-.search input {
-    flex:1;
-    padding:10px;
+.main-search input {
+    width:60%;
+    padding:12px;
+    border-radius:10px;
     border:none;
-    border-radius:8px;
     background:#12263a;
-    color:white;
-}
-
-.search button {
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    background:#1b344a;
     color:white;
 }
 
@@ -97,29 +83,33 @@ body {
 /* HOME */
 .home {
     text-align:center;
-    margin-top:50px;
+    margin-top:40px;
 }
 
 .home img {
-    width:180px;
-    animation:pulse 2s infinite;
+    width:160px;
 }
 
-@keyframes pulse {
-    0%,100%{transform:scale(1);}
-    50%{transform:scale(1.05);}
-}
-
-.random {
+/* BUBBLES */
+.bubbles {
+    position:relative;
+    height:120px;
     margin-top:20px;
-    font-size:20px;
-    color:#58a6ff;
-    animation:fade 1s;
 }
 
-@keyframes fade {
-    from{opacity:0;}
-    to{opacity:1;}
+.bubble {
+    position:absolute;
+    padding:8px 12px;
+    background:#1b344a;
+    border-radius:20px;
+    animation:pop 6s forwards;
+}
+
+@keyframes pop {
+    0% {opacity:0; transform:scale(0.5);}
+    20% {opacity:1;}
+    80% {opacity:1;}
+    100% {opacity:0; transform:scale(1.2);}
 }
 
 /* ENTRY */
@@ -135,14 +125,8 @@ body {
 
 /* MOBILE */
 @media(max-width:800px){
-    .app {
-        flex-direction:column;
-    }
-
-    .sidebar {
-        width:100%;
-        height:200px;
-    }
+    .app { flex-direction:column; }
+    .sidebar { width:100%; height:200px; }
 }
 </style>
 </head>
@@ -157,14 +141,7 @@ body {
 <div class="app">
 
 <div class="sidebar">
-
-<div class="search">
-<input id="search" placeholder="Αναζήτηση...">
-<button onclick="voiceSearch()">🎤</button>
-</div>
-
 <div id="list"></div>
-
 </div>
 
 <div class="content" id="content"></div>
@@ -179,51 +156,32 @@ fetch("data.txt")
 .then(r=>r.text())
 .then(text=>{
     entries = text.split(/\n(?=Ατάκα)/g).map(e=>{
-        const title = e.split("\n")[0].replace(/Ατάκα[0-9]+:\s*/,"").trim();
-        return {title,full:e};
+        const rawTitle = e.split("\n")[0].replace(/Ατάκα[0-9]+:\s*/,"").trim();
+        return {title:rawTitle,full:e};
     });
 
     renderList();
     showHome();
-    randomWordLoop();
+    startBubbles();
 });
 
-/* HOME */
-function showHome(){
-    document.getElementById("content").innerHTML = `
-        <div class="home">
-            <img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
-            <div class="random" id="randomWord"></div>
-        </div>
-    `;
-}
-
-/* RANDOM WORD */
-function randomWordLoop(){
-    setInterval(()=>{
-        if(!entries.length) return;
-        const w = entries[Math.floor(Math.random()*entries.length)].title;
-        const el = document.getElementById("randomWord");
-        if(el){
-            el.innerText = w;
-        }
-    },2000);
+/* CLEAN LETTER (ignore quotes etc) */
+function getFirstLetter(str){
+    let clean = str.replace(/[^Α-Ωα-ωA-Za-z]/g,"");
+    return clean.charAt(0).toUpperCase();
 }
 
 /* LIST */
 function renderList(){
-    const search=document.getElementById("search").value.toLowerCase();
-    let filtered = entries.filter(e=>e.title.toLowerCase().includes(search));
-
-    filtered.sort((a,b)=>a.title.localeCompare(b.title,'el'));
+    let sorted=[...entries].sort((a,b)=>a.title.localeCompare(b.title,'el'));
 
     const list=document.getElementById("list");
     list.innerHTML="";
 
     let currentLetter="";
 
-    filtered.forEach(item=>{
-        let letter=item.title[0].toUpperCase();
+    sorted.forEach(item=>{
+        let letter=getFirstLetter(item.title);
 
         if(letter!==currentLetter){
             currentLetter=letter;
@@ -236,11 +194,63 @@ function renderList(){
         let div=document.createElement("div");
         div.className="word";
         div.innerText=item.title;
-
         div.onclick=()=>openEntry(item);
 
         list.appendChild(div);
     });
+}
+
+/* HOME */
+function showHome(){
+    document.getElementById("content").innerHTML = `
+        <div class="home">
+            <img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
+
+            <div class="main-search">
+                <input id="searchMain" placeholder="Αναζήτηση...">
+            </div>
+
+            <div class="bubbles" id="bubbles"></div>
+        </div>
+    `;
+
+    document.getElementById("searchMain").addEventListener("input", e=>{
+        filterList(e.target.value);
+    });
+}
+
+/* FILTER */
+function filterList(q){
+    q=q.toLowerCase();
+    const list=document.getElementById("list");
+
+    list.querySelectorAll(".word").forEach(el=>{
+        el.style.display = el.innerText.toLowerCase().includes(q) ? "block":"none";
+    });
+}
+
+/* BUBBLES */
+function startBubbles(){
+    setInterval(()=>{
+        const container=document.getElementById("bubbles");
+        if(!container) return;
+
+        container.innerHTML="";
+
+        for(let i=0;i<5;i++){
+            let word=entries[Math.floor(Math.random()*entries.length)].title;
+
+            let div=document.createElement("div");
+            div.className="bubble";
+            div.innerText=word;
+
+            div.style.left=Math.random()*80+"%";
+            div.style.top=Math.random()*60+"%";
+
+            container.appendChild(div);
+        }
+
+    },6000);
 }
 
 /* ENTRY */
@@ -261,21 +271,6 @@ function openEntry(entry){
 function goHome(){
     showHome();
 }
-
-/* VOICE SEARCH */
-function voiceSearch(){
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "el-GR";
-
-    recognition.onresult = function(event){
-        document.getElementById("search").value = event.results[0][0].transcript;
-        renderList();
-    };
-
-    recognition.start();
-}
-
-document.getElementById("search").addEventListener("input",renderList);
 
 </script>
 
