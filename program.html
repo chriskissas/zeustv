@@ -1,1 +1,198 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<title>tioumpa.gr</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:#0b1622;
+    color:#e6edf3;
+}
+
+/* LAYOUT */
+.app {
+    display:flex;
+    height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width:280px;
+    background:#0f1f2f;
+    border-right:1px solid #1f3a52;
+    overflow:auto;
+    padding:15px;
+}
+
+.logo {
+    text-align:center;
+}
+
+.logo img {
+    width:100px;
+}
+
+.search input {
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border-radius:8px;
+    border:none;
+    background:#12263a;
+    color:white;
+}
+
+.word {
+    padding:8px;
+    cursor:pointer;
+}
+
+.word:hover {
+    background:#1b344a;
+}
+
+/* CONTENT */
+.content {
+    flex:1;
+    padding:40px;
+    overflow:auto;
+}
+
+.entry-title {
+    font-size:32px;
+    font-weight:600;
+    margin-bottom:20px;
+}
+
+.entry-body {
+    white-space:pre-wrap;
+    line-height:1.7;
+    font-size:16px;
+}
+
+/* HOME */
+.home {
+    text-align:center;
+    margin-top:100px;
+}
+
+iframe {
+    width:100%;
+    margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+<div class="logo">
+<h2>tioumpa.gr</h2>
+<img src="https://i.ibb.co/Kc71Qq7L/New-Project-22.png">
+</div>
+
+<div class="search">
+<input id="search" placeholder="Αναζήτηση...">
+</div>
+
+<div id="list"></div>
+
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content" id="content">
+
+<div class="home">
+<h1>Καλώς ήρθες στο tioumpa.gr</h1>
+<p>Επίλεξε μια λέξη από αριστερά</p>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let entries=[];
+
+fetch("data.txt")
+.then(r=>r.text())
+.then(text=>{
+    entries = text.split(/\n(?=Ατάκα)/g).map(e=>{
+        const title = e.split("\n")[0].replace(/Ατάκα[0-9]+:\s*/,"").trim();
+        return {title,full:e};
+    });
+
+    renderList();
+    handleRoute();
+});
+
+/* LIST */
+function renderList(){
+    const list=document.getElementById("list");
+    const search=document.getElementById("search").value.toLowerCase();
+
+    list.innerHTML="";
+
+    entries
+    .filter(e=>e.title.toLowerCase().includes(search))
+    .sort((a,b)=>a.title.localeCompare(b.title,'el'))
+    .forEach(item=>{
+        let div=document.createElement("div");
+        div.className="word";
+        div.innerText=item.title;
+
+        div.onclick=()=>{
+            location.hash = item.title;
+        };
+
+        list.appendChild(div);
+    });
+}
+
+document.getElementById("search").addEventListener("input",renderList);
+
+/* ROUTER */
+window.addEventListener("hashchange",handleRoute);
+
+function handleRoute(){
+
+    const name = decodeURIComponent(location.hash.replace("#",""));
+
+    const entry = entries.find(e=>e.title===name);
+
+    if(!entry){
+        document.getElementById("content").innerHTML = `
+            <div class="home">
+                <h1>tioumpa.gr</h1>
+                <p>Επίλεξε μια λέξη</p>
+            </div>
+        `;
+        return;
+    }
+
+    let lines = entry.full.split("\n");
+    lines.shift(); // remove ΑτάκαΧ:
+
+    let clean = lines.join("\n");
+    clean = clean.replace("Περιγραφή:", "");
+
+    document.getElementById("content").innerHTML = `
+        <div class="entry-title">${entry.title}</div>
+        <div class="entry-body">${clean}</div>
+    `;
+}
+
+</script>
+
+</body>
+</html>
