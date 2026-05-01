@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>tioumpa.gr</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<title>tioumpa.gr</title>
 
 <style>
 body {
@@ -25,10 +26,6 @@ body {
     cursor:pointer;
 }
 
-.header img {
-    height:40px;
-}
-
 /* LAYOUT */
 .app {
     display:flex;
@@ -36,48 +33,33 @@ body {
 }
 
 .sidebar {
-    width:260px;
+    width:320px; /* πιο μεγάλο */
     border-right:1px solid #1f3a52;
     overflow:auto;
-    padding:10px;
+    padding:15px;
 }
 
 .content {
     flex:1;
-    padding:20px;
+    padding:30px;
     overflow:auto;
 }
 
-/* SEARCH MAIN */
-.main-search {
-    text-align:center;
-    margin-top:20px;
-}
-
-.main-search input {
-    width:60%;
-    padding:12px;
-    border-radius:10px;
-    border:none;
-    background:#12263a;
-    color:white;
+/* LETTER */
+.letter {
+    margin-top:15px;
+    font-weight:600;
+    border-bottom:1px solid #2a445c;
 }
 
 /* WORD */
 .word {
-    padding:8px;
+    padding:10px;
     cursor:pointer;
 }
 
 .word:hover {
     background:#1b344a;
-}
-
-/* LETTER */
-.letter {
-    margin-top:10px;
-    font-weight:bold;
-    border-bottom:1px solid #2a445c;
 }
 
 /* HOME */
@@ -87,46 +69,97 @@ body {
 }
 
 .home img {
-    width:160px;
+    width:180px;
+}
+
+/* TITLE TEXT */
+.subtitle {
+    margin-top:10px;
+    font-size:14px;
+    color:#8aa4bf;
+}
+
+/* SEARCH */
+.search-box {
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+}
+
+.search-box input {
+    width:60%;
+    padding:12px;
+    border-radius:12px;
+    border:none;
+    background:#12263a;
+    color:white;
+}
+
+.search-icon {
+    width:20px;
+    filter:invert(1);
 }
 
 /* BUBBLES */
 .bubbles {
-    position:relative;
-    height:120px;
-    margin-top:20px;
+    margin-top:30px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:15px;
 }
 
 .bubble {
-    position:absolute;
-    padding:8px 12px;
-    background:#1b344a;
+    padding:10px 15px;
     border-radius:20px;
-    animation:pop 6s forwards;
+    backdrop-filter: blur(10px);
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.1);
+    animation:fade 6s forwards;
 }
 
-@keyframes pop {
-    0% {opacity:0; transform:scale(0.5);}
-    20% {opacity:1;}
-    80% {opacity:1;}
-    100% {opacity:0; transform:scale(1.2);}
+@keyframes fade {
+    0%{opacity:0; transform:scale(0.8);}
+    20%{opacity:1;}
+    80%{opacity:1;}
+    100%{opacity:0; transform:scale(1.1);}
 }
 
 /* ENTRY */
 .entry-title {
-    font-size:28px;
+    font-size:30px;
     font-style:italic;
+    animation:slide 0.4s ease;
+}
+
+.entry-divider {
+    margin:10px 0;
+    height:1px;
+    background:#2a445c;
 }
 
 .entry-body {
     margin-top:10px;
     white-space:pre-wrap;
+    animation:slide 0.5s ease;
+}
+
+iframe {
+    margin-top:20px;
+    width:100%;
+}
+
+@keyframes slide {
+    from {opacity:0; transform:translateY(10px);}
+    to {opacity:1; transform:translateY(0);}
 }
 
 /* MOBILE */
 @media(max-width:800px){
-    .app { flex-direction:column; }
-    .sidebar { width:100%; height:200px; }
+    .app {flex-direction:column;}
+    .sidebar {width:100%; height:200px;}
 }
 </style>
 </head>
@@ -134,7 +167,7 @@ body {
 <body>
 
 <div class="header" onclick="goHome()">
-<img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
+<img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png" height="40">
 <strong>tioumpa.gr</strong>
 </div>
 
@@ -156,19 +189,18 @@ fetch("data.txt")
 .then(r=>r.text())
 .then(text=>{
     entries = text.split(/\n(?=Ατάκα)/g).map(e=>{
-        const rawTitle = e.split("\n")[0].replace(/Ατάκα[0-9]+:\s*/,"").trim();
-        return {title:rawTitle,full:e};
+        const title = e.split("\n")[0].replace(/Ατάκα[0-9]+:\s*/,"").trim();
+        return {title,full:e};
     });
 
     renderList();
     showHome();
-    startBubbles();
+    bubbleLoop();
 });
 
-/* CLEAN LETTER (ignore quotes etc) */
-function getFirstLetter(str){
-    let clean = str.replace(/[^Α-Ωα-ωA-Za-z]/g,"");
-    return clean.charAt(0).toUpperCase();
+/* CLEAN LETTER */
+function getLetter(str){
+    return str.replace(/[^Α-Ωα-ωA-Za-z]/g,"").charAt(0).toUpperCase();
 }
 
 /* LIST */
@@ -178,25 +210,25 @@ function renderList(){
     const list=document.getElementById("list");
     list.innerHTML="";
 
-    let currentLetter="";
+    let current="";
 
     sorted.forEach(item=>{
-        let letter=getFirstLetter(item.title);
+        let l=getLetter(item.title);
 
-        if(letter!==currentLetter){
-            currentLetter=letter;
-            let l=document.createElement("div");
-            l.className="letter";
-            l.innerText=letter;
-            list.appendChild(l);
+        if(l!==current){
+            current=l;
+            let div=document.createElement("div");
+            div.className="letter";
+            div.innerText=l;
+            list.appendChild(div);
         }
 
-        let div=document.createElement("div");
-        div.className="word";
-        div.innerText=item.title;
-        div.onclick=()=>openEntry(item);
+        let w=document.createElement("div");
+        w.className="word";
+        w.innerText=item.title;
+        w.onclick=()=>openEntry(item);
 
-        list.appendChild(div);
+        list.appendChild(w);
     });
 }
 
@@ -205,8 +237,11 @@ function showHome(){
     document.getElementById("content").innerHTML = `
         <div class="home">
             <img src="https://i.ibb.co/ZRJ23fvR/kranoumpanoumpanoumpa.png">
+            <h2>tioumpa.gr</h2>
+            <div class="subtitle">ΤΟ ΛΕΞΙΚΟ ΤΟΥ TEOSTY</div>
 
-            <div class="main-search">
+            <div class="search-box">
+                <img class="search-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/user-interface/search-icon.png">
                 <input id="searchMain" placeholder="Αναζήτηση...">
             </div>
 
@@ -222,30 +257,32 @@ function showHome(){
 /* FILTER */
 function filterList(q){
     q=q.toLowerCase();
-    const list=document.getElementById("list");
-
-    list.querySelectorAll(".word").forEach(el=>{
+    document.querySelectorAll(".word").forEach(el=>{
         el.style.display = el.innerText.toLowerCase().includes(q) ? "block":"none";
     });
 }
 
-/* BUBBLES */
-function startBubbles(){
+/* BUBBLES FIXED */
+function bubbleLoop(){
     setInterval(()=>{
         const container=document.getElementById("bubbles");
         if(!container) return;
 
         container.innerHTML="";
 
-        for(let i=0;i<5;i++){
-            let word=entries[Math.floor(Math.random()*entries.length)].title;
+        let used=[];
+
+        for(let i=0;i<6;i++){
+            let word;
+            do{
+                word=entries[Math.floor(Math.random()*entries.length)].title;
+            } while(used.includes(word));
+
+            used.push(word);
 
             let div=document.createElement("div");
             div.className="bubble";
             div.innerText=word;
-
-            div.style.left=Math.random()*80+"%";
-            div.style.top=Math.random()*60+"%";
 
             container.appendChild(div);
         }
@@ -263,6 +300,7 @@ function openEntry(entry){
 
     document.getElementById("content").innerHTML = `
         <div class="entry-title">${entry.title}</div>
+        <div class="entry-divider"></div>
         <div class="entry-body">${clean}</div>
     `;
 }
