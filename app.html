@@ -259,18 +259,8 @@
       <label>Επιλογή βίντεο από τον υπολογιστή</label>
       <input id="showFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
 
-      <div class="grid2">
-        <div>
-          <label>Default διάρκεια</label>
-          <input id="showDuration" type="number" min="1" value="30" />
-        </div>
-        <div>
-          <label>Μονάδα</label>
-          <select id="showUnit">
-            <option value="minutes">λεπτά</option>
-            <option value="seconds">δευτερόλεπτα</option>
-          </select>
-        </div>
+      <div class="warning">
+        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο βίντεο.
       </div>
 
       <button class="green" style="margin-top:12px;" onclick="addFiles('show')">Προσθήκη Εκπομπών</button>
@@ -286,18 +276,8 @@
       <label>Επιλογή ident βίντεο από τον υπολογιστή</label>
       <input id="identFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
 
-      <div class="grid2">
-        <div>
-          <label>Default διάρκεια</label>
-          <input id="identDuration" type="number" min="1" value="10" />
-        </div>
-        <div>
-          <label>Μονάδα</label>
-          <select id="identUnit">
-            <option value="seconds">δευτερόλεπτα</option>
-            <option value="minutes">λεπτά</option>
-          </select>
-        </div>
+      <div class="warning">
+        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο ident.
       </div>
 
       <button style="margin-top:12px;" onclick="addFiles('ident')">Προσθήκη Ident</button>
@@ -313,18 +293,8 @@
       <label>Επιλογή διαφημιστικών βίντεο από τον υπολογιστή</label>
       <input id="adFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
 
-      <div class="grid2">
-        <div>
-          <label>Default διάρκεια</label>
-          <input id="adDuration" type="number" min="1" value="30" />
-        </div>
-        <div>
-          <label>Μονάδα</label>
-          <select id="adUnit">
-            <option value="seconds">δευτερόλεπτα</option>
-            <option value="minutes">λεπτά</option>
-          </select>
-        </div>
+      <div class="warning">
+        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο διαφήμισης.
       </div>
 
       <button class="yellow" style="margin-top:12px;" onclick="addFiles('ad')">Προσθήκη Διαφημίσεων</button>
@@ -454,42 +424,42 @@
       return document.getElementById("adFiles");
     }
 
-    function getDurationFields(type) {
-      if (type === "show") return {
-        duration: document.getElementById("showDuration"),
-        unit: document.getElementById("showUnit")
-      };
-      if (type === "ident") return {
-        duration: document.getElementById("identDuration"),
-        unit: document.getElementById("identUnit")
-      };
-      return {
-        duration: document.getElementById("adDuration"),
-        unit: document.getElementById("adUnit")
-      };
+    function readVideoDuration(file) {
+      return new Promise(resolve => {
+        const video = document.createElement("video");
+        const url = URL.createObjectURL(file);
+
+        video.preload = "metadata";
+        video.onloadedmetadata = () => {
+          const seconds = Math.max(1, Math.round(video.duration || 1));
+          URL.revokeObjectURL(url);
+          resolve(seconds);
+        };
+
+        video.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve(1);
+        };
+
+        video.src = url;
+      });
     }
 
-    function addFiles(type) {
+    async function addFiles(type) {
       const input = getFileInput(type);
-      const fields = getDurationFields(type);
       const files = Array.from(input.files || []);
-      const duration = Number(fields.duration.value);
-      const unit = fields.unit.value;
 
       if (!files.length) {
         alert("Διάλεξε τουλάχιστον ένα βίντεο από τον υπολογιστή σου.");
         return;
       }
 
-      if (!duration || duration <= 0) {
-        alert("Βάλε σωστή διάρκεια.");
-        return;
-      }
-
-      files.forEach(file => {
+      for (const file of files) {
         const id = uid();
         const objectUrl = URL.createObjectURL(file);
         objectUrls.set(id, objectUrl);
+
+        const autoSeconds = await readVideoDuration(file);
 
         state[type].push({
           id,
@@ -498,11 +468,10 @@
           fileName: file.name,
           fileSize: file.size,
           fileType: file.type || "video",
-          duration,
-          unit,
+          durationSeconds: autoSeconds,
           addedAt: new Date().toISOString()
         });
-      });
+      }
 
       input.value = "";
       saveState();
@@ -535,7 +504,8 @@
     }
 
     function durationSeconds(item) {
-      return item.unit === "minutes" ? Number(item.duration) * 60 : Number(item.duration);
+      if (item.durationSeconds) return Number(item.durationSeconds);
+      return item.unit === "minutes" ? Number(item.duration) * 60 : Number(item.duration || 1);
     }
 
     function secondsToLabel(seconds) {
@@ -584,8 +554,7 @@
         title: item.title,
         fileName: item.fileName,
         fileSize: item.fileSize,
-        duration: item.duration,
-        unit: item.unit,
+        durationSeconds: durationSeconds(item),
         seconds: durationSeconds(item)
       };
     }
@@ -705,7 +674,7 @@
           <div class="video-item">
             <strong>${escapeHtml(item.fileName)}</strong>
             <div class="small">Τίτλος: ${escapeHtml(item.title)}</div>
-            <div class="small">Διάρκεια: ${secondsToLabel(durationSeconds(item))}</div>
+            <div class="small">Διάρκεια αυτόματα: ${secondsToLabel(durationSeconds(item))}
             <div class="small">Μέγεθος: ${formatBytes(item.fileSize || 0)}</div>
             ${previewUrl ? `<video controls src="${previewUrl}"></video>` : `<div class="small">Preview διαθέσιμο μόνο μέχρι να κλείσει η σελίδα και αν ξαναδιαλέξεις το αρχείο.</div>`}
             <div class="actions" style="margin-top:8px;">
