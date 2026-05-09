@@ -165,6 +165,8 @@
     .p-ad { background: var(--ad); }
     .p-tele { background: var(--tele); }
     .p-teleIdent { background: var(--teleid); }
+    .p-teleStartIdent { background: var(--teleid); }
+    .p-teleEndIdent { background: var(--teleid); }
 
     .preview {
       white-space: pre-wrap;
@@ -231,6 +233,7 @@
             <option value="fileurl">file:/// path</option>
             <option value="folder">C:/ φάκελος</option>
             <option value="filename">μόνο filename</option>
+            <option value="vmix">M3U8 για vMix, τύπου &#92;video.mp4</option>
           </select>
         </div>
         <div>
@@ -248,7 +251,7 @@
           <button class="red" id="clearBtn">Clear όλα</button>
         </div>
       </div>
-      <div class="note">Για τα Στοιχεία λήψης στα Windows χρησιμοποιείται: <strong>C:/Users/pc/Downloads/</strong>. Τα ονόματα με κενά, ελληνικά ή # γίνονται αυτόματα σωστό file URL.</div>
+      <div class="note">Για vMix διάλεξε στο <strong>Path export</strong> την επιλογή <strong>M3U8 για vMix</strong>. Το export θα γράφει paths όπως: <strong>&#92;ERTFLIX [K8] (2).mp4</strong> και <strong>&#92;Η Λίζα τό 'σκασε (1959) Ολόκληρη ταινία FHD [Κ].mp4</strong>. Βάλε το .m3u8 στον ίδιο φάκελο με τα βίντεο, π.χ. στα Downloads.</div>
     </section>
 
     <section class="panels">
@@ -527,6 +530,11 @@
     function exportPath(fileName) {
       const mode = state.settings.pathMode || "fileurl";
       let base = normalizePath(state.settings.basePath || "C:/Users/pc/Downloads/");
+
+      // vMix mode: βγάζει μορφή σαν: ideo.mp4
+      // Χρήση: βάλε το .m3u8 στον ίδιο φάκελο με τα βίντεο.
+      if (mode === "vmix") return String.fromCharCode(92) + fileName;
+
       if (mode === "filename") return fileName;
       if (mode === "folder") return trailingSlash(base) + fileName;
       base = base.replace(/^file:\/\/\//i, "");
@@ -698,7 +706,12 @@
     function buildM3U8() {
       const t = buildTimeline();
       let out = "#EXTM3U\n";
-      out += "#PLAYLIST:TV Scheduler\n";
+      out += "#PLAYLIST:TV Scheduler
+";
+      if ((state.settings.pathMode || "") === "vmix") {
+        out += "#VMIX-COMPATIBLE:relative-windows-paths
+";
+      }
       out += "#TIMEZONE:Europe/Athens\n";
       out += `#START:${state.settings.startTime}\n\n`;
       for (const x of t) {
