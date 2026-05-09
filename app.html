@@ -56,7 +56,7 @@
   </header>
 
   <main>
-    <div class="note">Για vMix βάλε το exported m3u8 στον ίδιο φάκελο με τα βίντεο. Στο Path export διάλεξε vMix. Θα γράφει γραμμές τύπου &#92;video.mp4.</div>
+    <div class="note">Το M3U8 θα γράφει μόνο γραμμές τύπου &#92;example.mp4, χωρίς C:/ path και χωρίς file:///. Βάλε το .m3u8 στον ίδιο φάκελο με τα βίντεο.</div>
 
     <section class="box settings">
       <div>
@@ -79,17 +79,14 @@
         </select>
       </div>
       <div>
-        <label>Path export</label>
+        <label>Μορφή M3U8</label>
         <select id="pathMode">
-          <option value="vmix">vMix: &#92;video.mp4</option>
-          <option value="fileurl">file URL</option>
-          <option value="folder">C:/Users/pc/Downloads/video.mp4</option>
-          <option value="filename">μόνο όνομα αρχείου</option>
+          <option value="vmix">vMix: μόνο \\video.mp4</option>
         </select>
       </div>
       <div>
-        <label>Φάκελος για file URL / folder</label>
-        <input id="basePath" value="C:/Users/pc/Downloads/">
+        <label>Σημείωση</label>
+        <input id="basePath" value="Χωρίς path - μόνο \\όνομα_αρχείου.mp4" disabled>
       </div>
       <div>
         <label>Ενέργειες</label>
@@ -154,7 +151,7 @@
         <h2>Τι ώρα θα παίξει</h2>
         <table>
           <thead>
-            <tr><th>Ώρα</th><th>Τύπος</th><th>Αρχείο</th><th>Διάρκεια</th><th>Path</th></tr>
+            <tr><th>Ώρα</th><th>Τύπος</th><th>Αρχείο</th><th>Διάρκεια</th><th>Γραμμή M3U8</th></tr>
           </thead>
           <tbody id="timeline"></tbody>
         </table>
@@ -183,7 +180,7 @@
     function defaultState() {
       return {
         show: [], ident: [], ad: [], tele: [], teleStart: [], teleEnd: [],
-        settings: { startTime: '15:00', playMode: 'ident-show-ad', teleAfter: 'end', pathMode: 'vmix', basePath: 'C:/Users/pc/Downloads/' }
+        settings: { startTime: '15:00', playMode: 'ident-show-ad', teleAfter: 'end', pathMode: 'vmix', basePath: '' }
       };
     }
 
@@ -207,7 +204,7 @@
       byId('startTime').value = state.settings.startTime;
       byId('playMode').value = state.settings.playMode;
       byId('pathMode').value = state.settings.pathMode;
-      byId('basePath').value = state.settings.basePath;
+      byId('basePath').value = 'Χωρίς path - μόνο \\όνομα_αρχείου.mp4';
       updateTeleAfterOptions();
       byId('teleAfter').value = state.settings.teleAfter;
     }
@@ -216,7 +213,7 @@
       state.settings.startTime = byId('startTime').value || '15:00';
       state.settings.playMode = byId('playMode').value;
       state.settings.pathMode = byId('pathMode').value;
-      state.settings.basePath = byId('basePath').value || 'C:/Users/pc/Downloads/';
+      state.settings.basePath = ''; 
       state.settings.teleAfter = byId('teleAfter').value || 'end';
       saveState();
     }
@@ -285,12 +282,8 @@
     function encodePath(p) { return normalPath(p).split('/').map(function(part, index) { if (index === 0 && part.length === 2 && part[1] === ':') return part; return encodeURIComponent(part); }).join('/'); }
 
     function exportPath(fileName) {
-      const mode = state.settings.pathMode;
-      const base = normalPath(state.settings.basePath || 'C:/Users/pc/Downloads/');
-      if (mode === 'vmix') return slash + fileName;
-      if (mode === 'filename') return fileName;
-      if (mode === 'folder') return trail(base) + fileName;
-      return 'file:///' + trail(encodePath(base.replace('file:///', ''))) + encodeURIComponent(fileName);
+      // ΠΑΝΤΑ για vMix: χωρίς path, μόνο \filename.mp4
+      return slash + fileName;
     }
 
     function pushEntry(timeline, cursorObj, item, type, forcedSeconds, repeatText) {
@@ -376,7 +369,7 @@
     function buildM3U8() {
       const t = buildTimeline();
       const lines = ['#EXTM3U', '#PLAYLIST:TV Scheduler', '#START:' + state.settings.startTime];
-      if (state.settings.pathMode === 'vmix') lines.push('#VMIX-COMPATIBLE:relative-windows-paths');
+      lines.push('#VMIX-COMPATIBLE:relative-windows-paths');
       lines.push('');
       t.forEach(function(x) { lines.push('#EXT-X-PROGRAM-DATETIME:' + x.start); lines.push('#EXTINF:' + x.seconds + ',' + x.start + ' - ' + x.end + ' | ' + label(x.type) + ' | ' + x.fileName + (x.repeat ? ' | repeat ' + x.repeat : '')); lines.push('#TVSCHED:type=' + x.type + ';start=' + x.start + ';end=' + x.end + ';file=' + safe(x.fileName)); lines.push(x.path); lines.push(''); });
       return lines.join(nl);
