@@ -49,7 +49,7 @@
 
     .topbar {
       display: grid;
-      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
       gap: 8px;
       margin-bottom: 10px;
     }
@@ -234,6 +234,12 @@
           </select>
         </div>
         <div>
+          <label>Τηλεπωλήσεις μετά από</label>
+          <select id="teleInsertAfter">
+            <option value="end">Στο τέλος προγράμματος</option>
+          </select>
+        </div>
+        <div>
           <label>Ενέργεια</label>
           <button class="purple" id="exportBtn">Export M3U8</button>
         </div>
@@ -281,11 +287,16 @@
       </div>
 
       <div class="card">
-        <div class="panel-head"><h2>IDENT ΤΗΛ.</h2><span class="badge b-teleid">T.ID</span></div>
-        <label>Βίντεο ident τηλεπώλησης</label>
-        <input id="teleIdentFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
-        <button class="pink" data-add="teleIdent">Προσθήκη</button>
-        <div id="teleIdentList" class="list"></div>
+        <div class="panel-head"><h2>IDENT ΤΗΛ.</h2><span class="badge b-teleid">START / END</span></div>
+        <label>Ident έναρξης τηλεπώλησης</label>
+        <input id="teleStartIdentFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
+        <button class="pink" data-add="teleStartIdent">Προσθήκη Έναρξης</button>
+        <div id="teleStartIdentList" class="list"></div>
+
+        <label style="margin-top:8px;">Ident κλεισίματος τηλεπώλησης</label>
+        <input id="teleEndIdentFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
+        <button class="pink" data-add="teleEndIdent">Προσθήκη Κλεισίματος</button>
+        <div id="teleEndIdentList" class="list"></div>
       </div>
     </section>
 
@@ -331,12 +342,14 @@
         ident: [],
         ad: [],
         tele: [],
-        teleIdent: [],
+        teleStartIdent: [],
+        teleEndIdent: [],
         settings: {
           startTime: "15:00",
           playMode: "ident-show-ad",
           basePath: "C:/Users/pc/Downloads/",
-          pathMode: "fileurl"
+          pathMode: "fileurl",
+          teleInsertAfter: "end"
         }
       };
     }
@@ -357,7 +370,8 @@
         ident: data.ident || [],
         ad: data.ad || [],
         tele: data.tele || [],
-        teleIdent: data.teleIdent || [],
+        teleStartIdent: data.teleStartIdent || data.teleIdent || [],
+        teleEndIdent: data.teleEndIdent || data.teleIdent || [],
         settings: { ...d.settings, ...(data.settings || {}) }
       };
     }
@@ -377,6 +391,7 @@
       state.settings.playMode = el("playMode").value;
       state.settings.basePath = el("basePath").value.trim() || "C:/Users/pc/Downloads/";
       state.settings.pathMode = el("pathMode").value;
+      state.settings.teleInsertAfter = el("teleInsertAfter").value || "end";
       saveState();
     }
 
@@ -385,6 +400,8 @@
       el("playMode").value = state.settings.playMode || "ident-show-ad";
       el("basePath").value = state.settings.basePath || "C:/Users/pc/Downloads/";
       el("pathMode").value = state.settings.pathMode || "fileurl";
+      updateTeleInsertOptions();
+      el("teleInsertAfter").value = state.settings.teleInsertAfter || "end";
     }
 
     function inputFor(type) {
@@ -541,7 +558,8 @@
       let adIndex = 0;
       const adPool = shuffle(state.ad);
       const ident = state.ident[0] || null;
-      const teleIdent = state.teleIdent[0] || null;
+      const teleStartIdent = state.teleStartIdent[0] || null;
+      const teleEndIdent = state.teleEndIdent[0] || null;
 
       function push(item, type) {
         if (!item) return;
@@ -558,6 +576,17 @@
         adIndex++;
         return ad;
       }
+
+      function pushTeleBlock() {
+        for (const tele of state.tele) {
+          push(teleStartIdent, "teleStartIdent");
+          push(tele, "tele");
+          push(teleEndIdent, "teleEndIdent");
+        }
+      }
+
+      const insertAfter = state.settings.teleInsertAfter || "end";
+      let teleInserted = false;
 
       for (const show of state.show) {
         const mode = state.settings.playMode;
@@ -579,12 +608,15 @@
           push(show, "show");
           push(ident, "ident");
         }
+
+        if (insertAfter === show.id) {
+          pushTeleBlock();
+          teleInserted = true;
+        }
       }
 
-      for (const tele of state.tele) {
-        push(teleIdent, "teleIdent");
-        push(tele, "tele");
-        push(teleIdent, "teleIdent");
+      if (!teleInserted && insertAfter === "end") {
+        pushTeleBlock();
       }
 
       return timeline;
@@ -596,7 +628,9 @@
         ident: "IDENT",
         ad: "ΔΙΑΦΗΜΙΣΗ",
         tele: "ΤΗΛΕΠΩΛΗΣΗ",
-        teleIdent: "IDENT ΤΗΛ."
+        teleIdent: "IDENT ΤΗΛ.",
+        teleStartIdent: "ΕΝΑΡΞΗ ΤΗΛ.",
+        teleEndIdent: "ΚΛΕΙΣΙΜΟ ΤΗΛ."
       }[type] || type;
     }
 
@@ -661,6 +695,23 @@
       el("m3uPreview").textContent = buildM3U8();
     }
 
+    function updateTeleInsertOptions() {
+      const select = el("teleInsertAfter");
+      if (!select) return;
+
+      const current = state.settings.teleInsertAfter || "end";
+      let html = '<option value="end">Στο τέλος προγράμματος</option>';
+
+      state.show.forEach((show, index) => {
+        html += `<option value="${show.id}">Μετά από ${index + 1}: ${esc(show.fileName)}</option>`;
+      });
+
+      select.innerHTML = html;
+      const exists = Array.from(select.options).some(opt => opt.value === current);
+      select.value = exists ? current : "end";
+      state.settings.teleInsertAfter = select.value;
+    }
+
     function renderHistory() {
       const h = getHistory();
       if (!h.length) {
@@ -682,7 +733,8 @@
       renderList("ident", "identList");
       renderList("ad", "adList");
       renderList("tele", "teleList");
-      renderList("teleIdent", "teleIdentList");
+      renderList("teleStartIdent", "teleStartIdentList");
+      renderList("teleEndIdent", "teleEndIdentList");
       renderTimeline();
       renderPreview();
       renderHistory();
@@ -756,7 +808,7 @@
       btn.addEventListener("click", () => addFiles(btn.dataset.add));
     });
 
-    ["startTime", "playMode", "basePath", "pathMode"].forEach(id => {
+    ["startTime", "playMode", "basePath", "pathMode", "teleInsertAfter"].forEach(id => {
       el(id).addEventListener("change", () => { syncSettingsFromUI(); renderTimeline(); renderPreview(); });
       el(id).addEventListener("input", () => { syncSettingsFromUI(); renderTimeline(); renderPreview(); });
     });
