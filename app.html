@@ -1,857 +1,430 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TV M3U8 Scheduler</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV M3U8 Scheduler για vMix</title>
   <style>
-    :root {
-      --bg: #08111f;
-      --card: #111827;
-      --card2: #0b1220;
-      --line: #293548;
-      --text: #f8fafc;
-      --muted: #9ca3af;
-      --show: #34d399;
-      --ident: #38bdf8;
-      --ad: #fbbf24;
-      --tele: #fb923c;
-      --teleid: #f472b6;
-      --danger: #fb7185;
-      --ok: #22c55e;
-      --purple: #a78bfa;
-    }
-
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 13px;
-    }
-
-    header {
-      padding: 10px 12px;
-      background: #020617;
-      border-bottom: 1px solid var(--line);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
+    body { margin: 0; font-family: Arial, sans-serif; background: #0b1120; color: #f8fafc; font-size: 13px; }
+    header { padding: 10px 12px; background: #020617; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 5; }
     h1 { margin: 0; font-size: 18px; }
     h2 { margin: 0 0 8px; font-size: 14px; }
-    p { margin: 4px 0 0; color: var(--muted); }
-
+    p { margin: 4px 0 0; color: #94a3b8; }
     main { padding: 10px; }
-
-    .topbar {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(120px, 1fr));
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .panels {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(180px, 1fr));
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 9px;
-    }
-
-    .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .badge {
-      padding: 3px 7px;
-      border-radius: 999px;
-      color: #020617;
-      font-weight: 700;
-      font-size: 11px;
-    }
-
-    .b-show { background: var(--show); }
-    .b-ident { background: var(--ident); }
-    .b-ad { background: var(--ad); }
-    .b-tele { background: var(--tele); }
-    .b-teleid { background: var(--teleid); }
-
-    label { display: block; margin: 5px 0 3px; color: var(--muted); font-size: 12px; }
-
-    input, select, button {
-      width: 100%;
-      background: var(--card2);
-      color: var(--text);
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      padding: 7px;
-      font-size: 12px;
-      outline: none;
-    }
-
-    input[type="file"] { padding: 6px; }
-
-    button {
-      border: 0;
-      cursor: pointer;
-      font-weight: 700;
-      color: #06101f;
-      background: var(--ident);
-    }
-
+    .box { background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 9px; }
+    .settings { display: grid; grid-template-columns: repeat(6, minmax(120px, 1fr)); gap: 8px; margin-bottom: 8px; }
+    .panels { display: grid; grid-template-columns: repeat(5, minmax(180px, 1fr)); gap: 8px; margin-bottom: 8px; }
+    .bottom { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+    label { display: block; color: #94a3b8; font-size: 12px; margin: 5px 0 3px; }
+    input, select, button { width: 100%; padding: 7px; border-radius: 7px; border: 1px solid #334155; background: #020617; color: #f8fafc; font-size: 12px; }
+    button { border: 0; font-weight: bold; cursor: pointer; color: #06101f; background: #38bdf8; }
     button:hover { filter: brightness(1.08); }
-    button:active { transform: scale(0.99); }
-
-    .green { background: var(--show); }
-    .yellow { background: var(--ad); }
-    .orange { background: var(--tele); }
-    .pink { background: var(--teleid); }
-    .red { background: var(--danger); color: white; }
-    .purple { background: var(--purple); }
+    .green { background: #34d399; }
+    .yellow { background: #fbbf24; }
+    .orange { background: #fb923c; }
+    .pink { background: #f472b6; }
+    .purple { background: #a78bfa; }
+    .red { background: #fb7185; color: white; }
     .gray { background: #475569; color: white; }
-    .ok { background: var(--ok); }
-
-    .minirow { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-    .actions button { width: auto; padding: 5px 7px; font-size: 11px; }
-
-    .list {
-      margin-top: 7px;
-      display: grid;
-      gap: 5px;
-      max-height: 190px;
-      overflow: auto;
-      padding-right: 2px;
-    }
-
-    .item {
-      background: #020617;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 6px;
-    }
-
+    .head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .tag { padding: 3px 7px; border-radius: 999px; color: #020617; font-weight: bold; font-size: 11px; }
+    .show { background: #34d399; }
+    .ident { background: #38bdf8; }
+    .ad { background: #fbbf24; }
+    .tele { background: #fb923c; }
+    .teleStart, .teleEnd { background: #f472b6; }
+    .list { display: grid; gap: 5px; max-height: 170px; overflow: auto; margin-top: 7px; }
+    .item { background: #020617; border: 1px solid #334155; border-radius: 8px; padding: 6px; }
     .item strong { display: block; font-size: 12px; margin-bottom: 2px; }
-    .small { color: var(--muted); font-size: 11px; line-height: 1.35; word-break: break-all; }
-
-    .tables {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 8px;
-    }
-
+    .small { color: #94a3b8; font-size: 11px; line-height: 1.35; word-break: break-word; }
+    .actions { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+    .actions button { width: auto; padding: 5px 7px; font-size: 11px; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-    th { background: #020617; color: var(--muted); position: sticky; top: 59px; z-index: 3; }
-    tbody tr:hover td { background: rgba(56,189,248,0.05); }
-
-    .pill { display: inline-block; padding: 3px 7px; border-radius: 999px; color: #020617; font-weight: 700; font-size: 11px; }
-    .p-show { background: var(--show); }
-    .p-ident { background: var(--ident); }
-    .p-ad { background: var(--ad); }
-    .p-tele { background: var(--tele); }
-    .p-teleIdent { background: var(--teleid); }
-    .p-teleStartIdent { background: var(--teleid); }
-    .p-teleEndIdent { background: var(--teleid); }
-
-    .preview {
-      white-space: pre-wrap;
-      font-family: Consolas, monospace;
-      font-size: 11px;
-      background: #020617;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 7px;
-      max-height: 230px;
-      overflow: auto;
-    }
-
-    .note {
-      background: rgba(251,191,36,0.07);
-      border: 1px dashed rgba(251,191,36,0.55);
-      color: #fde68a;
-      border-radius: 8px;
-      padding: 7px;
-      margin: 8px 0;
-      font-size: 12px;
-    }
-
-    @media (max-width: 1300px) {
-      .panels { grid-template-columns: repeat(2, 1fr); }
-      .topbar { grid-template-columns: repeat(3, 1fr); }
-      .tables { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 760px) {
-      .panels, .topbar { grid-template-columns: 1fr; }
-    }
+    th, td { padding: 6px; border-bottom: 1px solid #334155; text-align: left; vertical-align: top; }
+    th { color: #94a3b8; background: #020617; }
+    .preview { white-space: pre-wrap; font-family: Consolas, monospace; font-size: 11px; background: #020617; border: 1px solid #334155; border-radius: 8px; padding: 7px; max-height: 260px; overflow: auto; }
+    .note { margin-bottom: 8px; padding: 8px; border: 1px dashed #fbbf24; color: #fde68a; border-radius: 8px; background: rgba(251,191,36,0.07); }
+    @media (max-width: 1200px) { .settings { grid-template-columns: repeat(2, 1fr); } .panels { grid-template-columns: repeat(2, 1fr); } .bottom { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .settings, .panels { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <header>
-    <h1>TV M3U8 Scheduler</h1>
-    <p>Βάζεις βίντεο από τον υπολογιστή σου, υπολογίζει διάρκεια, δείχνει ώρες και κάνει export M3U8.</p>
+    <h1>TV M3U8 Scheduler για vMix</h1>
+    <p>Διάλεξε αρχεία βίντεο, φτιάξε πρόγραμμα με ώρες και κάνε export m3u8.</p>
   </header>
 
   <main>
-    <section class="card">
-      <div class="topbar">
-        <div>
-          <label>Ώρα έναρξης</label>
-          <input id="startTime" type="time" value="15:00" />
-        </div>
-        <div>
-          <label>Σειρά προγράμματος</label>
-          <select id="playMode">
-            <option value="ident-show-ad">Ident + Εκπομπή + Διαφήμιση</option>
-            <option value="ident-show-ad-ident">Ident + Εκπομπή + Διαφήμιση + Ident</option>
-            <option value="show-ident-ad">Εκπομπή + Ident + Διαφήμιση</option>
-            <option value="show-only-ident">Μόνο Εκπομπές με Ident</option>
-          </select>
-        </div>
-        <div>
-          <label>Φάκελος βίντεο</label>
-          <input id="basePath" value="C:/Users/pc/Downloads/" />
-        </div>
-        <div>
-          <label>Path export</label>
-          <select id="pathMode">
-            <option value="fileurl">file:/// path</option>
-            <option value="folder">C:/ φάκελος</option>
-            <option value="filename">μόνο filename</option>
-            <option value="vmix">M3U8 για vMix, τύπου &#92;video.mp4</option>
-          </select>
-        </div>
-        <div>
-          <label>Τηλεπωλήσεις μετά από</label>
-          <select id="teleInsertAfter">
-            <option value="end">Στο τέλος προγράμματος</option>
-          </select>
-        </div>
-        <div>
-          <label>Ενέργεια</label>
-          <button class="purple" id="exportBtn">Export M3U8</button>
-        </div>
-        <div>
-          <label>Καθάρισμα</label>
-          <button class="red" id="clearBtn">Clear όλα</button>
-        </div>
+    <div class="note">Για vMix βάλε το exported m3u8 στον ίδιο φάκελο με τα βίντεο. Στο Path export διάλεξε vMix. Θα γράφει γραμμές τύπου &#92;video.mp4.</div>
+
+    <section class="box settings">
+      <div>
+        <label>Ώρα έναρξης</label>
+        <input id="startTime" type="time" value="15:00">
       </div>
-      <div class="note">Για vMix διάλεξε στο <strong>Path export</strong> την επιλογή <strong>M3U8 για vMix</strong>. Το export θα γράφει paths όπως: <strong>&#92;ERTFLIX [K8] (2).mp4</strong> και <strong>&#92;Η Λίζα τό 'σκασε (1959) Ολόκληρη ταινία FHD [Κ].mp4</strong>. Βάλε το .m3u8 στον ίδιο φάκελο με τα βίντεο, π.χ. στα Downloads.</div>
+      <div>
+        <label>Σειρά εκπομπών</label>
+        <select id="playMode">
+          <option value="ident-show-ad">Ident + Εκπομπή + Διαφήμιση</option>
+          <option value="ident-show-ad-ident">Ident + Εκπομπή + Διαφήμιση + Ident</option>
+          <option value="show-ident-ad">Εκπομπή + Ident + Διαφήμιση</option>
+          <option value="show-ident">Εκπομπή + Ident</option>
+        </select>
+      </div>
+      <div>
+        <label>Τηλεπωλήσεις μετά από</label>
+        <select id="teleAfter">
+          <option value="end">Στο τέλος</option>
+        </select>
+      </div>
+      <div>
+        <label>Path export</label>
+        <select id="pathMode">
+          <option value="vmix">vMix: &#92;video.mp4</option>
+          <option value="fileurl">file URL</option>
+          <option value="folder">C:/Users/pc/Downloads/video.mp4</option>
+          <option value="filename">μόνο όνομα αρχείου</option>
+        </select>
+      </div>
+      <div>
+        <label>Φάκελος για file URL / folder</label>
+        <input id="basePath" value="C:/Users/pc/Downloads/">
+      </div>
+      <div>
+        <label>Ενέργειες</label>
+        <button id="exportBtn" class="purple">Export M3U8</button>
+      </div>
+      <div>
+        <label>Clear</label>
+        <button id="clearBtn" class="red">Clear όλα</button>
+      </div>
     </section>
 
     <section class="panels">
-      <div class="card">
-        <div class="panel-head"><h2>ΕΚΠΟΜΠΗ</h2><span class="badge b-show">SHOW</span></div>
-        <label>Βίντεο εκπομπών</label>
-        <input id="showFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
-        <button class="green" data-add="show">Προσθήκη</button>
+      <div class="box">
+        <div class="head"><h2>ΕΚΠΟΜΠΗ</h2><span class="tag show">SHOW</span></div>
+        <label>Αρχεία εκπομπής</label>
+        <input id="showFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple>
+        <button class="green addBtn" data-type="show">Προσθήκη</button>
         <div id="showList" class="list"></div>
       </div>
 
-      <div class="card">
-        <div class="panel-head"><h2>IDENT</h2><span class="badge b-ident">IDENT</span></div>
-        <label>Βίντεο ident</label>
-        <input id="identFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
-        <button data-add="ident">Προσθήκη</button>
+      <div class="box">
+        <div class="head"><h2>IDENT</h2><span class="tag ident">IDENT</span></div>
+        <label>Αρχεία ident</label>
+        <input id="identFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple>
+        <button class="addBtn" data-type="ident">Προσθήκη</button>
         <div id="identList" class="list"></div>
       </div>
 
-      <div class="card">
-        <div class="panel-head"><h2>ΔΙΑΦΗΜΙΣΗ</h2><span class="badge b-ad">ADS</span></div>
-        <label>Βίντεο διαφημίσεων</label>
-        <input id="adFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
-        <button class="yellow" data-add="ad">Προσθήκη</button>
+      <div class="box">
+        <div class="head"><h2>ΔΙΑΦΗΜΙΣΗ</h2><span class="tag ad">ADS</span></div>
+        <label>Αρχεία διαφημίσεων</label>
+        <input id="adFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple>
+        <button class="yellow addBtn" data-type="ad">Προσθήκη</button>
         <div id="adList" class="list"></div>
       </div>
 
-      <div class="card">
-        <div class="panel-head"><h2>ΤΗΛΕΠΩΛΗΣΕΙΣ</h2><span class="badge b-tele">TELE</span></div>
-        <label>Βίντεο τηλεπωλήσεων</label>
-        <input id="teleFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
-        <label>Loop ώρες ανά βίντεο</label>
-        <input id="teleLoopHours" type="number" min="0.1" step="0.1" value="1" />
-        <button class="orange" data-add="tele">Προσθήκη</button>
+      <div class="box">
+        <div class="head"><h2>ΤΗΛΕΠΩΛΗΣΗ</h2><span class="tag tele">TELE</span></div>
+        <label>Αρχεία τηλεπώλησης</label>
+        <input id="teleFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple>
+        <label>Ώρες loop</label>
+        <input id="teleHours" type="number" min="0.1" step="0.1" value="1">
+        <button class="orange addBtn" data-type="tele">Προσθήκη</button>
         <div id="teleList" class="list"></div>
       </div>
 
-      <div class="card">
-        <div class="panel-head"><h2>IDENT ΤΗΛ.</h2><span class="badge b-teleid">START / END</span></div>
-        <label>Ident έναρξης τηλεπώλησης</label>
-        <input id="teleStartIdentFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
-        <button class="pink" data-add="teleStartIdent">Προσθήκη Έναρξης</button>
-        <div id="teleStartIdentList" class="list"></div>
-
-        <label style="margin-top:8px;">Ident κλεισίματος τηλεπώλησης</label>
-        <input id="teleEndIdentFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple />
-        <button class="pink" data-add="teleEndIdent">Προσθήκη Κλεισίματος</button>
-        <div id="teleEndIdentList" class="list"></div>
+      <div class="box">
+        <div class="head"><h2>IDENT ΤΗΛ.</h2><span class="tag teleStart">START END</span></div>
+        <label>Ident έναρξης</label>
+        <input id="teleStartFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple>
+        <button class="pink addBtn" data-type="teleStart">Προσθήκη έναρξης</button>
+        <div id="teleStartList" class="list"></div>
+        <label>Ident κλεισίματος</label>
+        <input id="teleEndFiles" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.ts,.m3u8" multiple>
+        <button class="pink addBtn" data-type="teleEnd">Προσθήκη κλεισίματος</button>
+        <div id="teleEndList" class="list"></div>
       </div>
     </section>
 
-    <section class="tables">
-      <div class="card">
+    <section class="bottom">
+      <div class="box">
         <h2>Τι ώρα θα παίξει</h2>
         <table>
           <thead>
-            <tr>
-              <th>Ώρα</th>
-              <th>Τύπος</th>
-              <th>Αρχείο</th>
-              <th>Διάρκεια</th>
-              <th>Path</th>
-            </tr>
+            <tr><th>Ώρα</th><th>Τύπος</th><th>Αρχείο</th><th>Διάρκεια</th><th>Path</th></tr>
           </thead>
-          <tbody id="timelineBody"></tbody>
+          <tbody id="timeline"></tbody>
         </table>
       </div>
-
-      <div class="card">
-        <h2>History exports</h2>
-        <div id="historyList" class="list"></div>
-        <button class="gray" id="clearHistoryBtn" style="margin-top:8px;">Clear history</button>
+      <div class="box">
+        <h2>History export</h2>
+        <div id="history" class="list"></div>
+        <button id="clearHistoryBtn" class="gray">Clear history</button>
       </div>
     </section>
 
-    <section class="card" style="margin-top:8px;">
+    <section class="box" style="margin-top:8px;">
       <h2>Preview M3U8</h2>
-      <div id="m3uPreview" class="preview"></div>
+      <div id="preview" class="preview"></div>
     </section>
   </main>
 
   <script>
-    const STORE = "tv_m3u8_scheduler_clean_v1";
-    const HISTORY = "tv_m3u8_scheduler_history_v1";
+    const nl = String.fromCharCode(10);
+    const slash = String.fromCharCode(92);
+    const storeKey = 'tv_scheduler_clean_final_v1';
+    const historyKey = 'tv_scheduler_history_final_v1';
 
     let state = loadState();
 
     function defaultState() {
       return {
-        show: [],
-        ident: [],
-        ad: [],
-        tele: [],
-        teleStartIdent: [],
-        teleEndIdent: [],
-        settings: {
-          startTime: "15:00",
-          playMode: "ident-show-ad",
-          basePath: "C:/Users/pc/Downloads/",
-          pathMode: "fileurl",
-          teleInsertAfter: "end"
-        }
+        show: [], ident: [], ad: [], tele: [], teleStart: [], teleEnd: [],
+        settings: { startTime: '15:00', playMode: 'ident-show-ad', teleAfter: 'end', pathMode: 'vmix', basePath: 'C:/Users/pc/Downloads/' }
       };
     }
 
     function loadState() {
       try {
-        const loaded = JSON.parse(localStorage.getItem(STORE));
-        return loaded ? mergeDefaults(loaded) : defaultState();
-      } catch {
-        return defaultState();
-      }
+        const saved = JSON.parse(localStorage.getItem(storeKey));
+        const d = defaultState();
+        if (!saved) return d;
+        return {
+          show: saved.show || [], ident: saved.ident || [], ad: saved.ad || [], tele: saved.tele || [], teleStart: saved.teleStart || [], teleEnd: saved.teleEnd || [],
+          settings: Object.assign(d.settings, saved.settings || {})
+        };
+      } catch (e) { return defaultState(); }
     }
 
-    function mergeDefaults(data) {
-      const d = defaultState();
-      return {
-        show: data.show || [],
-        ident: data.ident || [],
-        ad: data.ad || [],
-        tele: data.tele || [],
-        teleStartIdent: data.teleStartIdent || data.teleIdent || [],
-        teleEndIdent: data.teleEndIdent || data.teleIdent || [],
-        settings: { ...d.settings, ...(data.settings || {}) }
-      };
+    function saveState() { localStorage.setItem(storeKey, JSON.stringify(state)); }
+    function byId(id) { return document.getElementById(id); }
+    function id() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+    function setUiFromState() {
+      byId('startTime').value = state.settings.startTime;
+      byId('playMode').value = state.settings.playMode;
+      byId('pathMode').value = state.settings.pathMode;
+      byId('basePath').value = state.settings.basePath;
+      updateTeleAfterOptions();
+      byId('teleAfter').value = state.settings.teleAfter;
     }
 
-    function saveState() {
-      localStorage.setItem(STORE, JSON.stringify(state));
-    }
-
-    function uid() {
-      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-    }
-
-    function el(id) { return document.getElementById(id); }
-
-    function syncSettingsFromUI() {
-      state.settings.startTime = el("startTime").value || "15:00";
-      state.settings.playMode = el("playMode").value;
-      state.settings.basePath = el("basePath").value.trim() || "C:/Users/pc/Downloads/";
-      state.settings.pathMode = el("pathMode").value;
-      state.settings.teleInsertAfter = el("teleInsertAfter").value || "end";
+    function readUiSettings() {
+      state.settings.startTime = byId('startTime').value || '15:00';
+      state.settings.playMode = byId('playMode').value;
+      state.settings.pathMode = byId('pathMode').value;
+      state.settings.basePath = byId('basePath').value || 'C:/Users/pc/Downloads/';
+      state.settings.teleAfter = byId('teleAfter').value || 'end';
       saveState();
     }
 
-    function syncSettingsToUI() {
-      el("startTime").value = state.settings.startTime || "15:00";
-      el("playMode").value = state.settings.playMode || "ident-show-ad";
-      el("basePath").value = state.settings.basePath || "C:/Users/pc/Downloads/";
-      el("pathMode").value = state.settings.pathMode || "fileurl";
-      updateTeleInsertOptions();
-      el("teleInsertAfter").value = state.settings.teleInsertAfter || "end";
-    }
+    function fileInput(type) { return byId(type + 'Files'); }
+    function cleanName(name) { const p = name.lastIndexOf('.'); return p > 0 ? name.slice(0, p) : name; }
 
-    function inputFor(type) {
-      return el(type + "Files");
-    }
-
-    function cleanTitle(name) {
-      return name.replace(/\.[^/.]+$/, "");
-    }
-
-    function getVideoDuration(file) {
-      return new Promise(resolve => {
+    function videoDuration(file) {
+      return new Promise(function(resolve) {
         const url = URL.createObjectURL(file);
-        const video = document.createElement("video");
-        video.preload = "metadata";
-        video.onloadedmetadata = () => {
-          const seconds = Number.isFinite(video.duration) ? Math.max(1, Math.round(video.duration)) : 1;
+        const v = document.createElement('video');
+        v.preload = 'metadata';
+        v.onloadedmetadata = function() {
+          const s = Number.isFinite(v.duration) ? Math.max(1, Math.round(v.duration)) : 1;
           URL.revokeObjectURL(url);
-          resolve(seconds);
+          resolve(s);
         };
-        video.onerror = () => {
-          URL.revokeObjectURL(url);
-          resolve(1);
-        };
-        video.src = url;
+        v.onerror = function() { URL.revokeObjectURL(url); resolve(1); };
+        v.src = url;
       });
     }
 
     async function addFiles(type) {
-      const input = inputFor(type);
+      const input = fileInput(type);
       const files = Array.from(input.files || []);
-      if (!files.length) {
-        alert("Διάλεξε πρώτα βίντεο αρχείο.");
-        return;
+      if (!files.length) { alert('Διάλεξε πρώτα αρχείο βίντεο.'); return; }
+      for (const f of files) {
+        const seconds = await videoDuration(f);
+        const hours = type === 'tele' ? Math.max(0.1, Number(byId('teleHours').value || 1)) : null;
+        state[type].push({ uid: id(), fileName: f.name, title: cleanName(f.name), seconds: seconds, size: f.size, loopHours: hours, loopTotal: hours ? Math.round(hours * 3600) : null });
       }
-
-      for (const file of files) {
-        const realSeconds = await getVideoDuration(file);
-        const loopHours = type === "tele" ? Math.max(0.1, Number(el("teleLoopHours").value || 1)) : null;
-        state[type].push({
-          id: uid(),
-          type,
-          fileName: file.name,
-          title: cleanTitle(file.name),
-          size: file.size,
-          realSeconds,
-          playSeconds: realSeconds,
-          loopHours,
-          loopTotalSeconds: loopHours ? Math.round(loopHours * 3600) : null,
-          addedAt: new Date().toISOString()
-        });
-      }
-
-      input.value = "";
+      input.value = '';
       saveState();
-      render();
+      renderAll();
     }
 
-    function deleteItem(type, id) {
-      state[type] = state[type].filter(x => x.id !== id);
+    function deleteItem(type, uid) {
+      state[type] = state[type].filter(function(x) { return x.uid !== uid; });
       saveState();
-      render();
+      renderAll();
     }
 
-    function moveItem(type, id, dir) {
+    function moveItem(type, uid, dir) {
       const list = state[type];
-      const i = list.findIndex(x => x.id === id);
-      if (i < 0) return;
+      const i = list.findIndex(function(x) { return x.uid === uid; });
       const j = i + dir;
-      if (j < 0 || j >= list.length) return;
-      [list[i], list[j]] = [list[j], list[i]];
+      if (i < 0 || j < 0 || j >= list.length) return;
+      const tmp = list[i]; list[i] = list[j]; list[j] = tmp;
       saveState();
-      render();
+      renderAll();
     }
 
-    function secondsToClock(total) {
-      total = ((Math.round(total) % 86400) + 86400) % 86400;
-      const h = Math.floor(total / 3600);
-      const m = Math.floor((total % 3600) / 60);
-      const s = total % 60;
-      return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-    }
+    function clockToSec(v) { const a = v.split(':').map(Number); return a[0] * 3600 + a[1] * 60; }
+    function secToClock(sec) { sec = ((Math.round(sec) % 86400) + 86400) % 86400; const h = Math.floor(sec / 3600); const m = Math.floor((sec % 3600) / 60); const s = sec % 60; return pad(h) + ':' + pad(m) + ':' + pad(s); }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function dur(sec) { sec = Math.round(sec || 0); const h = Math.floor(sec / 3600); const m = Math.floor((sec % 3600) / 60); const s = sec % 60; if (h) return h + 'ω ' + m + 'λ ' + s + 'δ'; if (m) return m + 'λ ' + s + 'δ'; return s + 'δ'; }
 
-    function clockToSeconds(clock) {
-      const [h, m] = clock.split(":").map(Number);
-      return h * 3600 + m * 60;
-    }
-
-    function fmtDuration(sec) {
-      sec = Math.round(sec || 0);
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const s = sec % 60;
-      if (h) return `${h}ω ${m}λ ${s}δ`;
-      if (m) return `${m}λ ${s}δ`;
-      return `${s}δ`;
-    }
-
-    function shuffle(list) {
-      const a = [...list];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
       return a;
     }
 
-    function normalizePath(path) {
-      return String(path || "").replaceAll("\\", "/");
-    }
-
-    function trailingSlash(path) {
-      return path.endsWith("/") ? path : path + "/";
-    }
-
-    function encodePathParts(path) {
-      return normalizePath(path).split("/").map((part, index) => {
-        if (index === 0 && /^[A-Za-z]:$/.test(part)) return part;
-        return encodeURIComponent(part);
-      }).join("/");
-    }
+    function normalPath(p) { return String(p || '').split(slash).join('/'); }
+    function trail(p) { return p.endsWith('/') ? p : p + '/'; }
+    function encodePath(p) { return normalPath(p).split('/').map(function(part, index) { if (index === 0 && part.length === 2 && part[1] === ':') return part; return encodeURIComponent(part); }).join('/'); }
 
     function exportPath(fileName) {
-      const mode = state.settings.pathMode || "fileurl";
-      let base = normalizePath(state.settings.basePath || "C:/Users/pc/Downloads/");
-
-      // vMix mode: βγάζει μορφή σαν: ideo.mp4
-      // Χρήση: βάλε το .m3u8 στον ίδιο φάκελο με τα βίντεο.
-      if (mode === "vmix") return String.fromCharCode(92) + fileName;
-
-      if (mode === "filename") return fileName;
-      if (mode === "folder") return trailingSlash(base) + fileName;
-      base = base.replace(/^file:\/\/\//i, "");
-      return "file:///" + trailingSlash(encodePathParts(base)) + encodeURIComponent(fileName);
+      const mode = state.settings.pathMode;
+      const base = normalPath(state.settings.basePath || 'C:/Users/pc/Downloads/');
+      if (mode === 'vmix') return slash + fileName;
+      if (mode === 'filename') return fileName;
+      if (mode === 'folder') return trail(base) + fileName;
+      return 'file:///' + trail(encodePath(base.replace('file:///', ''))) + encodeURIComponent(fileName);
     }
 
-    function makeEntry(item, type, cursor, forcedSeconds = null, repeatInfo = null) {
-      const sec = forcedSeconds || item.playSeconds || item.realSeconds || 1;
-      return {
-        type,
-        fileName: item.fileName,
-        title: item.title,
-        start: secondsToClock(cursor),
-        end: secondsToClock(cursor + sec),
-        seconds: sec,
-        realSeconds: item.realSeconds || sec,
-        loopHours: item.loopHours || null,
-        repeatInfo,
-        path: exportPath(item.fileName)
-      };
+    function pushEntry(timeline, cursorObj, item, type, forcedSeconds, repeatText) {
+      if (!item) return;
+      const seconds = forcedSeconds || item.seconds || 1;
+      const prev = timeline[timeline.length - 1];
+      const isIdent = type === 'ident' || type === 'teleStart' || type === 'teleEnd';
+      const prevIdent = prev && (prev.type === 'ident' || prev.type === 'teleStart' || prev.type === 'teleEnd');
+      if (isIdent && prevIdent) return;
+      timeline.push({ type: type, fileName: item.fileName, start: secToClock(cursorObj.value), end: secToClock(cursorObj.value + seconds), seconds: seconds, path: exportPath(item.fileName), repeat: repeatText || '' });
+      cursorObj.value += seconds;
     }
 
-    function isIdentType(type) {
-      return type === "ident" || type === "teleIdent";
+    function pushTeleLoop(timeline, cursorObj, tele) {
+      const total = tele.loopTotal || tele.seconds || 1;
+      const one = tele.seconds || 1;
+      const repeats = Math.ceil(total / one);
+      let left = total;
+      let r = 1;
+      while (left > 0) {
+        const use = Math.min(one, left);
+        pushEntry(timeline, cursorObj, tele, 'tele', use, r + '/' + repeats);
+        left -= use;
+        r++;
+      }
     }
 
     function buildTimeline() {
-      syncSettingsFromUI();
+      readUiSettings();
       const timeline = [];
-      let cursor = clockToSeconds(state.settings.startTime);
-      let adIndex = 0;
-      const adPool = shuffle(state.ad);
+      const cursor = { value: clockToSec(state.settings.startTime) };
       const ident = state.ident[0] || null;
-      const teleStartIdent = state.teleStartIdent[0] || null;
-      const teleEndIdent = state.teleEndIdent[0] || null;
+      const teleStart = state.teleStart[0] || null;
+      const teleEnd = state.teleEnd[0] || null;
+      const ads = shuffle(state.ad);
+      let adIndex = 0;
+      let teleDone = false;
 
-      function push(item, type) {
-        if (!item) return;
-        const entry = makeEntry(item, type, cursor);
-        const prev = timeline[timeline.length - 1];
-        if (prev && isIdentType(prev.type) && isIdentType(entry.type)) return;
-        timeline.push(entry);
-        cursor += entry.seconds;
-      }
+      function nextAd() { if (!ads.length) return null; const x = ads[adIndex % ads.length]; adIndex++; return x; }
+      function teleBlock() { state.tele.forEach(function(t) { pushEntry(timeline, cursor, teleStart, 'teleStart'); pushTeleLoop(timeline, cursor, t); pushEntry(timeline, cursor, teleEnd, 'teleEnd'); }); }
 
-      function nextAd() {
-        if (!adPool.length) return null;
-        const ad = adPool[adIndex % adPool.length];
-        adIndex++;
-        return ad;
-      }
-
-      function pushTeleLoop(tele) {
-        const total = tele.loopTotalSeconds || tele.playSeconds || tele.realSeconds || 1;
-        const oneVideo = tele.realSeconds || tele.playSeconds || 1;
-        let remaining = total;
-        let repeat = 1;
-        const totalRepeats = Math.ceil(total / oneVideo);
-
-        while (remaining > 0) {
-          const thisDuration = Math.min(oneVideo, remaining);
-          const entry = makeEntry(tele, "tele", cursor, thisDuration, `${repeat}/${totalRepeats}`);
-          timeline.push(entry);
-          cursor += thisDuration;
-          remaining -= thisDuration;
-          repeat++;
-        }
-      }
-
-      function pushTeleBlock() {
-        for (const tele of state.tele) {
-          push(teleStartIdent, "teleStartIdent");
-          pushTeleLoop(tele);
-          push(teleEndIdent, "teleEndIdent");
-        }
-      }
-
-      const insertAfter = state.settings.teleInsertAfter || "end";
-      let teleInserted = false;
-
-      for (const show of state.show) {
+      state.show.forEach(function(show) {
         const mode = state.settings.playMode;
-        if (mode === "ident-show-ad") {
-          push(ident, "ident");
-          push(show, "show");
-          push(nextAd(), "ad");
-        } else if (mode === "ident-show-ad-ident") {
-          push(ident, "ident");
-          push(show, "show");
-          push(nextAd(), "ad");
-          push(ident, "ident");
-        } else if (mode === "show-ident-ad") {
-          push(show, "show");
-          push(ident, "ident");
-          push(nextAd(), "ad");
-        } else {
-          push(ident, "ident");
-          push(show, "show");
-          push(ident, "ident");
-        }
-
-        if (insertAfter === show.id) {
-          pushTeleBlock();
-          teleInserted = true;
-        }
-      }
-
-      if (!teleInserted && insertAfter === "end") {
-        pushTeleBlock();
-      }
-
+        if (mode === 'ident-show-ad') { pushEntry(timeline, cursor, ident, 'ident'); pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, nextAd(), 'ad'); }
+        if (mode === 'ident-show-ad-ident') { pushEntry(timeline, cursor, ident, 'ident'); pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, nextAd(), 'ad'); pushEntry(timeline, cursor, ident, 'ident'); }
+        if (mode === 'show-ident-ad') { pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, ident, 'ident'); pushEntry(timeline, cursor, nextAd(), 'ad'); }
+        if (mode === 'show-ident') { pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, ident, 'ident'); }
+        if (state.settings.teleAfter === show.uid) { teleBlock(); teleDone = true; }
+      });
+      if (!teleDone && state.settings.teleAfter === 'end') teleBlock();
       return timeline;
     }
 
-    function label(type) {
-      return {
-        show: "ΕΚΠΟΜΠΗ",
-        ident: "IDENT",
-        ad: "ΔΙΑΦΗΜΙΣΗ",
-        tele: "ΤΗΛΕΠΩΛΗΣΗ",
-        teleIdent: "IDENT ΤΗΛ.",
-        teleStartIdent: "ΕΝΑΡΞΗ ΤΗΛ.",
-        teleEndIdent: "ΚΛΕΙΣΙΜΟ ΤΗΛ."
-      }[type] || type;
+    function label(type) { return { show: 'ΕΚΠΟΜΠΗ', ident: 'IDENT', ad: 'ΔΙΑΦΗΜΙΣΗ', tele: 'ΤΗΛΕΠΩΛΗΣΗ', teleStart: 'ΕΝΑΡΞΗ ΤΗΛ.', teleEnd: 'ΚΛΕΙΣΙΜΟ ΤΗΛ.' }[type] || type; }
+
+    function renderList(type) {
+      const target = byId(type + 'List');
+      const list = state[type];
+      if (!list.length) { target.innerHTML = '<div class="small">Άδειο.</div>'; return; }
+      target.innerHTML = list.map(function(x) {
+        return '<div class="item"><strong>' + esc(x.fileName) + '</strong><div class="small">Διάρκεια: ' + dur(x.seconds) + '</div>' + (x.loopHours ? '<div class="small">Loop στόχος: ' + x.loopHours + ' ώρες / ' + dur(x.loopTotal) + '</div>' : '') + '<div class="actions"><button class="gray" data-move="up" data-type="' + type + '" data-id="' + x.uid + '">↑</button><button class="gray" data-move="down" data-type="' + type + '" data-id="' + x.uid + '">↓</button><button class="red" data-delete="yes" data-type="' + type + '" data-id="' + x.uid + '">X</button></div></div>';
+      }).join('');
     }
 
-    function pillClass(type) {
-      return "p-" + type;
-    }
-
-    function renderList(type, target) {
-      const list = state[type] || [];
-      if (!list.length) {
-        el(target).innerHTML = '<div class="small">Άδειο.</div>';
-        return;
-      }
-      el(target).innerHTML = list.map(x => `
-        <div class="item">
-          <strong>${esc(x.fileName)}</strong>
-          <div class="small">Διάρκεια: ${fmtDuration(x.realSeconds)}</div>
-          ${x.loopHours ? `<div class="small">Loop στόχος: ${x.loopHours} ώρες / ${fmtDuration(x.loopTotalSeconds || x.playSeconds)}</div>` : ""}
-          <div class="small">${fmtBytes(x.size)}</div>
-          <div class="actions">
-            <button class="gray" onclick="moveItem('${type}','${x.id}',-1)">↑</button>
-            <button class="gray" onclick="moveItem('${type}','${x.id}',1)">↓</button>
-            <button class="red" onclick="deleteItem('${type}','${x.id}')">X</button>
-          </div>
-        </div>
-      `).join("");
+    function updateTeleAfterOptions() {
+      const select = byId('teleAfter');
+      const current = state.settings.teleAfter || 'end';
+      let html = '<option value="end">Στο τέλος</option>';
+      state.show.forEach(function(s, i) { html += '<option value="' + s.uid + '">Μετά από ' + (i + 1) + ': ' + esc(s.fileName) + '</option>'; });
+      select.innerHTML = html;
+      const ok = Array.from(select.options).some(function(o) { return o.value === current; });
+      select.value = ok ? current : 'end';
+      state.settings.teleAfter = select.value;
     }
 
     function renderTimeline() {
       const t = buildTimeline();
-      if (!t.length) {
-        el("timelineBody").innerHTML = '<tr><td colspan="5" class="small">Δεν έχεις βάλει ακόμα εκπομπές ή τηλεπωλήσεις.</td></tr>';
-        return;
-      }
-      el("timelineBody").innerHTML = t.map(x => `
-        <tr>
-          <td><strong>${x.start} - ${x.end}</strong></td>
-          <td><span class="pill ${pillClass(x.type)}">${label(x.type)}</span></td>
-          <td>${esc(x.fileName)}${x.repeatInfo ? `<div class="small">Επανάληψη ${x.repeatInfo}</div>` : ""}</td>
-          <td>${fmtDuration(x.seconds)}</td>
-          <td class="small">${esc(x.path)}</td>
-        </tr>
-      `).join("");
+      const body = byId('timeline');
+      if (!t.length) { body.innerHTML = '<tr><td colspan="5" class="small">Δεν υπάρχει πρόγραμμα ακόμα.</td></tr>'; return; }
+      body.innerHTML = t.map(function(x) { return '<tr><td><strong>' + x.start + ' - ' + x.end + '</strong></td><td><span class="tag ' + x.type + '">' + label(x.type) + '</span></td><td>' + esc(x.fileName) + (x.repeat ? '<div class="small">Επανάληψη ' + x.repeat + '</div>' : '') + '</td><td>' + dur(x.seconds) + '</td><td class="small">' + esc(x.path) + '</td></tr>'; }).join('');
     }
 
     function buildM3U8() {
       const t = buildTimeline();
-      let out = "#EXTM3U\n";
-      out += "#PLAYLIST:TV Scheduler
-";
-      if ((state.settings.pathMode || "") === "vmix") {
-        out += "#VMIX-COMPATIBLE:relative-windows-paths
-";
-      }
-      out += "#TIMEZONE:Europe/Athens\n";
-      out += `#START:${state.settings.startTime}\n\n`;
-      for (const x of t) {
-        out += `#EXT-X-PROGRAM-DATETIME:${x.start}\n`;
-        out += `#EXTINF:${x.seconds},${x.start} - ${x.end} | ${label(x.type)} | ${x.fileName}${x.repeatInfo ? " | repeat " + x.repeatInfo : ""}
-`;
-        out += `#TVSCHED:type=${x.type};start=${x.start};end=${x.end};file=${safe(x.fileName)}\n`;
-        out += `${x.path}\n\n`;
-      }
-      return out;
+      const lines = ['#EXTM3U', '#PLAYLIST:TV Scheduler', '#START:' + state.settings.startTime];
+      if (state.settings.pathMode === 'vmix') lines.push('#VMIX-COMPATIBLE:relative-windows-paths');
+      lines.push('');
+      t.forEach(function(x) { lines.push('#EXT-X-PROGRAM-DATETIME:' + x.start); lines.push('#EXTINF:' + x.seconds + ',' + x.start + ' - ' + x.end + ' | ' + label(x.type) + ' | ' + x.fileName + (x.repeat ? ' | repeat ' + x.repeat : '')); lines.push('#TVSCHED:type=' + x.type + ';start=' + x.start + ';end=' + x.end + ';file=' + safe(x.fileName)); lines.push(x.path); lines.push(''); });
+      return lines.join(nl);
     }
 
-    function renderPreview() {
-      el("m3uPreview").textContent = buildM3U8();
-    }
-
-    function updateTeleInsertOptions() {
-      const select = el("teleInsertAfter");
-      if (!select) return;
-
-      const current = state.settings.teleInsertAfter || "end";
-      let html = '<option value="end">Στο τέλος προγράμματος</option>';
-
-      state.show.forEach((show, index) => {
-        html += `<option value="${show.id}">Μετά από ${index + 1}: ${esc(show.fileName)}</option>`;
-      });
-
-      select.innerHTML = html;
-      const exists = Array.from(select.options).some(opt => opt.value === current);
-      select.value = exists ? current : "end";
-      state.settings.teleInsertAfter = select.value;
-    }
+    function renderPreview() { byId('preview').textContent = buildM3U8(); }
 
     function renderHistory() {
       const h = getHistory();
-      if (!h.length) {
-        el("historyList").innerHTML = '<div class="small">Δεν υπάρχει history.</div>';
-        return;
-      }
-      el("historyList").innerHTML = h.map(x => `
-        <div class="item">
-          <strong>${esc(x.when)}</strong>
-          <div class="small">Items: ${x.count}</div>
-          <div class="small">Start: ${esc(x.start)}</div>
-        </div>
-      `).join("");
+      const box = byId('history');
+      if (!h.length) { box.innerHTML = '<div class="small">Άδειο.</div>'; return; }
+      box.innerHTML = h.map(function(x) { return '<div class="item"><strong>' + esc(x.when) + '</strong><div class="small">Items: ' + x.count + '</div><div class="small">Start: ' + esc(x.start) + '</div></div>'; }).join('');
     }
 
-    function render() {
-      syncSettingsToUI();
-      renderList("show", "showList");
-      renderList("ident", "identList");
-      renderList("ad", "adList");
-      renderList("tele", "teleList");
-      renderList("teleStartIdent", "teleStartIdentList");
-      renderList("teleEndIdent", "teleEndIdentList");
-      renderTimeline();
-      renderPreview();
-      renderHistory();
-    }
-
-    function getHistory() {
-      try { return JSON.parse(localStorage.getItem(HISTORY)) || []; }
-      catch { return []; }
-    }
-
-    function addHistory(count) {
-      const h = getHistory();
-      h.unshift({
-        when: new Date().toLocaleString("el-GR"),
-        count,
-        start: state.settings.startTime
-      });
-      localStorage.setItem(HISTORY, JSON.stringify(h.slice(0, 20)));
+    function renderAll() {
+      updateTeleAfterOptions();
+      renderList('show'); renderList('ident'); renderList('ad'); renderList('tele'); renderList('teleStart'); renderList('teleEnd');
+      renderTimeline(); renderPreview(); renderHistory(); saveState();
     }
 
     function downloadM3U8() {
       const content = buildM3U8();
-      const count = buildTimeline().length;
-      const blob = new Blob([content], { type: "application/vnd.apple.mpegurl" });
+      const blob = new Blob([content], { type: 'application/vnd.apple.mpegurl' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "scheduled_playlist.m3u8";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      addHistory(count);
-      renderHistory();
+      const a = document.createElement('a');
+      a.href = url; a.download = 'scheduled_playlist.m3u8'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      const h = getHistory(); h.unshift({ when: new Date().toLocaleString('el-GR'), count: buildTimeline().length, start: state.settings.startTime }); localStorage.setItem(historyKey, JSON.stringify(h.slice(0, 20))); renderHistory();
     }
 
-    function clearAll() {
-      if (!confirm("Να σβηστούν όλα τα βίντεο και το πρόγραμμα;")) return;
-      state = defaultState();
-      saveState();
-      render();
-    }
+    function getHistory() { try { return JSON.parse(localStorage.getItem(historyKey)) || []; } catch (e) { return []; } }
+    function clearHistory() { localStorage.removeItem(historyKey); renderHistory(); }
+    function clearAll() { if (!confirm('Να σβηστούν όλα;')) return; state = defaultState(); saveState(); setUiFromState(); renderAll(); }
+    function esc(v) { return String(v || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+    function safe(v) { return String(v || '').replaceAll(';', ',').replaceAll(nl, ' '); }
 
-    function clearHistory() {
-      localStorage.removeItem(HISTORY);
-      renderHistory();
-    }
-
-    function fmtBytes(bytes) {
-      if (!bytes) return "";
-      const u = ["B", "KB", "MB", "GB"];
-      let v = bytes, i = 0;
-      while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
-      return `${v.toFixed(i ? 1 : 0)} ${u[i]}`;
-    }
-
-    function esc(v) {
-      return String(v || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function safe(v) {
-      return String(v || "").replaceAll(";", ",").replaceAll("\n", " ");
-    }
-
-    document.querySelectorAll("[data-add]").forEach(btn => {
-      btn.addEventListener("click", () => addFiles(btn.dataset.add));
+    document.querySelectorAll('.addBtn').forEach(function(btn) { btn.addEventListener('click', function() { addFiles(btn.dataset.type); }); });
+    document.body.addEventListener('click', function(e) {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.delete) deleteItem(b.dataset.type, b.dataset.id);
+      if (b.dataset.move) moveItem(b.dataset.type, b.dataset.id, b.dataset.move === 'up' ? -1 : 1);
     });
+    ['startTime','playMode','teleAfter','pathMode','basePath'].forEach(function(x) { byId(x).addEventListener('change', function() { readUiSettings(); renderAll(); }); byId(x).addEventListener('input', function() { readUiSettings(); renderAll(); }); });
+    byId('exportBtn').addEventListener('click', downloadM3U8);
+    byId('clearBtn').addEventListener('click', clearAll);
+    byId('clearHistoryBtn').addEventListener('click', clearHistory);
 
-    ["startTime", "playMode", "basePath", "pathMode", "teleInsertAfter"].forEach(id => {
-      el(id).addEventListener("change", () => { syncSettingsFromUI(); renderTimeline(); renderPreview(); });
-      el(id).addEventListener("input", () => { syncSettingsFromUI(); renderTimeline(); renderPreview(); });
-    });
-
-    el("exportBtn").addEventListener("click", downloadM3U8);
-    el("clearBtn").addEventListener("click", clearAll);
-    el("clearHistoryBtn").addEventListener("click", clearHistory);
-
-    syncSettingsToUI();
-    render();
+    setUiFromState();
+    renderAll();
   </script>
 </body>
 </html>
