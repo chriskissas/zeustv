@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>M3U8 TV Playlist Builder</title>
+  <title>Local Video M3U8 Builder</title>
   <style>
     :root {
       --bg: #0f172a;
       --card: #111827;
-      --card2: #1f2937;
       --text: #f8fafc;
       --muted: #94a3b8;
       --border: #334155;
@@ -31,7 +30,7 @@
     header {
       padding: 22px;
       border-bottom: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(15, 23, 42, 0.94);
       position: sticky;
       top: 0;
       z-index: 20;
@@ -40,7 +39,7 @@
 
     h1 { margin: 0 0 6px; font-size: 26px; }
     h2 { margin: 0 0 12px; font-size: 18px; }
-    p { margin: 0; color: var(--muted); }
+    p { margin: 0; color: var(--muted); line-height: 1.45; }
 
     main {
       display: grid;
@@ -50,21 +49,19 @@
     }
 
     .panel, .wide-panel {
-      background: rgba(17, 24, 39, 0.95);
+      background: rgba(17, 24, 39, 0.96);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 16px;
       box-shadow: 0 18px 42px rgba(0,0,0,0.24);
     }
 
-    .wide-panel {
-      grid-column: 1 / -1;
-    }
+    .wide-panel { grid-column: 1 / -1; }
 
     .panel-title {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 10px;
       margin-bottom: 12px;
     }
@@ -88,7 +85,7 @@
       font-size: 13px;
     }
 
-    input, textarea, select, button {
+    input, select, button {
       width: 100%;
       border-radius: 12px;
       border: 1px solid var(--border);
@@ -99,12 +96,13 @@
       outline: none;
     }
 
-    textarea {
-      min-height: 70px;
-      resize: vertical;
+    input[type="file"] {
+      padding: 9px;
+      border-style: dashed;
+      cursor: pointer;
     }
 
-    input:focus, textarea:focus, select:focus {
+    input:focus, select:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
     }
@@ -127,30 +125,15 @@
     .red { background: var(--red); color: #fff; }
     .gray { background: #334155; color: var(--text); }
 
-    .grid2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .grid3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
-
-    .btnrow {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
 
     .item-list {
       margin-top: 12px;
       display: grid;
       gap: 8px;
-      max-height: 260px;
+      max-height: 290px;
       overflow: auto;
       padding-right: 4px;
     }
@@ -162,16 +145,24 @@
       padding: 10px;
     }
 
-    .video-item strong {
-      display: block;
-      margin-bottom: 5px;
-    }
+    .video-item strong { display: block; margin-bottom: 5px; }
 
     .small {
       color: var(--muted);
       font-size: 12px;
-      line-height: 1.35;
+      line-height: 1.4;
       word-break: break-all;
+    }
+
+    .warning {
+      border: 1px dashed var(--yellow);
+      color: #fde68a;
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      background: rgba(251,191,36,0.06);
     }
 
     table {
@@ -189,14 +180,8 @@
       font-size: 13px;
     }
 
-    th {
-      color: var(--muted);
-      background: #020617;
-    }
-
-    tr:hover td {
-      background: rgba(56,189,248,0.04);
-    }
+    th { color: var(--muted); background: #020617; }
+    tr:hover td { background: rgba(56,189,248,0.04); }
 
     .type-pill {
       display: inline-block;
@@ -211,18 +196,8 @@
     .type-ident { background: var(--blue); }
     .type-ad { background: var(--yellow); }
 
-    .actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .actions button {
-      width: auto;
-      padding: 7px 9px;
-      font-size: 12px;
-      border-radius: 9px;
-    }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .actions button { width: auto; padding: 7px 9px; font-size: 12px; border-radius: 9px; }
 
     .preview {
       white-space: pre-wrap;
@@ -239,22 +214,39 @@
 
     .settings-row {
       display: grid;
-      grid-template-columns: 160px 160px 160px 1fr;
+      grid-template-columns: 160px 180px 180px 1fr;
       gap: 10px;
       align-items: end;
       margin-bottom: 14px;
     }
 
+    .path-row {
+      display: grid;
+      grid-template-columns: 1fr 210px;
+      gap: 10px;
+      align-items: end;
+      margin-top: 10px;
+    }
+
+    video {
+      width: 100%;
+      max-height: 140px;
+      margin-top: 8px;
+      border-radius: 12px;
+      background: #000;
+      border: 1px solid var(--border);
+    }
+
     @media (max-width: 1100px) {
       main { grid-template-columns: 1fr; }
-      .settings-row { grid-template-columns: 1fr 1fr; }
+      .settings-row, .path-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>M3U8 TV Playlist Builder</h1>
-    <p>Βάλε βίντεο σε τρία πανελάκια: Εκπομπές, Ident, Διαφημίσεις. Το πρόγραμμα υπολογίζει τις ώρες και κάνει export σε M3U8.</p>
+    <h1>Local Video M3U8 Builder</h1>
+    <p>Διάλεξε βίντεο από τον υπολογιστή σου στα τρία πανελάκια: Εκπομπές, Ident, Διαφημίσεις. Μετά βλέπεις τι ώρα θα παίξει το καθένα και κάνεις export σε M3U8.</p>
   </header>
 
   <main>
@@ -264,15 +256,12 @@
         <span class="badge badge-show">SHOW</span>
       </div>
 
-      <label>Τίτλος εκπομπής</label>
-      <input id="showTitle" placeholder="π.χ. Πρωινή Εκπομπή" />
-
-      <label>Βίντεο / URL / m3u8</label>
-      <input id="showUrl" placeholder="π.χ. https://site.com/show01.m3u8" />
+      <label>Επιλογή βίντεο από τον υπολογιστή</label>
+      <input id="showFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
 
       <div class="grid2">
         <div>
-          <label>Διάρκεια</label>
+          <label>Default διάρκεια</label>
           <input id="showDuration" type="number" min="1" value="30" />
         </div>
         <div>
@@ -284,25 +273,22 @@
         </div>
       </div>
 
-      <button class="green" style="margin-top:12px;" onclick="addVideo('show')">Προσθήκη Εκπομπής</button>
+      <button class="green" style="margin-top:12px;" onclick="addFiles('show')">Προσθήκη Εκπομπών</button>
       <div id="showList" class="item-list"></div>
     </section>
 
     <section class="panel">
       <div class="panel-title">
         <h2>IDENT</h2>
-        <span class="badge badge-ident">CHANNEL IDENT</span>
+        <span class="badge badge-ident">IDENT</span>
       </div>
 
-      <label>Τίτλος ident</label>
-      <input id="identTitle" placeholder="π.χ. Ident Καναλιού" value="Ident Καναλιού" />
-
-      <label>Βίντεο / URL / m3u8</label>
-      <input id="identUrl" placeholder="π.χ. https://site.com/ident.mp4" />
+      <label>Επιλογή ident βίντεο από τον υπολογιστή</label>
+      <input id="identFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
 
       <div class="grid2">
         <div>
-          <label>Διάρκεια</label>
+          <label>Default διάρκεια</label>
           <input id="identDuration" type="number" min="1" value="10" />
         </div>
         <div>
@@ -314,7 +300,7 @@
         </div>
       </div>
 
-      <button style="margin-top:12px;" onclick="addVideo('ident')">Προσθήκη Ident</button>
+      <button style="margin-top:12px;" onclick="addFiles('ident')">Προσθήκη Ident</button>
       <div id="identList" class="item-list"></div>
     </section>
 
@@ -324,15 +310,12 @@
         <span class="badge badge-ad">ADS</span>
       </div>
 
-      <label>Τίτλος διαφήμισης</label>
-      <input id="adTitle" placeholder="π.χ. Διαφήμιση 1" />
-
-      <label>Βίντεο / URL / m3u8</label>
-      <input id="adUrl" placeholder="π.χ. https://site.com/ad01.mp4" />
+      <label>Επιλογή διαφημιστικών βίντεο από τον υπολογιστή</label>
+      <input id="adFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
 
       <div class="grid2">
         <div>
-          <label>Διάρκεια</label>
+          <label>Default διάρκεια</label>
           <input id="adDuration" type="number" min="1" value="30" />
         </div>
         <div>
@@ -344,26 +327,27 @@
         </div>
       </div>
 
-      <button class="yellow" style="margin-top:12px;" onclick="addVideo('ad')">Προσθήκη Διαφήμισης</button>
+      <button class="yellow" style="margin-top:12px;" onclick="addFiles('ad')">Προσθήκη Διαφημίσεων</button>
       <div id="adList" class="item-list"></div>
     </section>
 
     <section class="wide-panel">
-      <h2>Ρυθμίσεις προγράμματος</h2>
+      <h2>Ρυθμίσεις εξαγωγής και ώρας</h2>
+
       <div class="settings-row">
         <div>
           <label>Ώρα έναρξης</label>
           <input id="startTime" type="time" value="15:00" onchange="renderAll()" />
         </div>
         <div>
-          <label>Ident πριν από εκπομπή</label>
+          <label>Ident πριν</label>
           <select id="identBefore" onchange="renderAll()">
             <option value="yes">Ναι</option>
             <option value="no">Όχι</option>
           </select>
         </div>
         <div>
-          <label>Ident μετά από εκπομπή</label>
+          <label>Ident μετά</label>
           <select id="identAfter" onchange="renderAll()">
             <option value="yes">Ναι</option>
             <option value="no">Όχι</option>
@@ -372,11 +356,30 @@
         <div>
           <label>Σειρά παιξίματος</label>
           <select id="playMode" onchange="renderAll()">
-            <option value="show-ident-ad">Εκπομπή + Ident + Διαφήμιση</option>
             <option value="ident-show-ad-ident">Ident + Εκπομπή + Διαφήμιση + Ident</option>
+            <option value="show-ident-ad">Εκπομπή + Ident + Διαφήμιση</option>
             <option value="show-only-with-ident">Μόνο Εκπομπές με Ident πριν/μετά</option>
           </select>
         </div>
+      </div>
+
+      <div class="path-row">
+        <div>
+          <label>Φάκελος βίντεο για export M3U8</label>
+          <input id="basePath" placeholder="π.χ. C:/TV/videos/ ή file:///C:/TV/videos/" onchange="renderAll()" />
+        </div>
+        <div>
+          <label>Μορφή path</label>
+          <select id="pathMode" onchange="renderAll()">
+            <option value="filename">Μόνο όνομα αρχείου</option>
+            <option value="folder">Φάκελος + όνομα αρχείου</option>
+            <option value="fileurl">file:/// path</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="warning">
+        Σημαντικό: Ο browser για λόγους ασφαλείας δεν δίνει το πλήρες path τύπου C:\\... μόνος του. Γι’ αυτό βάζεις εδώ τον φάκελο που έχεις τα βίντεο, π.χ. <strong>C:/TV/videos/</strong>, και το export φτιάχνει τις γραμμές με βάση αυτόν τον φάκελο.
       </div>
 
       <div class="btnrow">
@@ -392,9 +395,9 @@
           <tr>
             <th>Ώρα</th>
             <th>Κατηγορία</th>
-            <th>Τίτλος</th>
+            <th>Αρχείο</th>
             <th>Διάρκεια</th>
-            <th>Βίντεο / URL</th>
+            <th>Path στο M3U8</th>
           </tr>
         </thead>
         <tbody id="timelineBody"></tbody>
@@ -408,7 +411,8 @@
   </main>
 
   <script>
-    const STORAGE_KEY = "simple_m3u8_tv_builder_v1";
+    const STORAGE_KEY = "local_video_m3u8_builder_v2";
+    const objectUrls = new Map();
 
     let state = loadState();
 
@@ -421,7 +425,9 @@
           startTime: "15:00",
           identBefore: "yes",
           identAfter: "yes",
-          playMode: "ident-show-ad-ident"
+          playMode: "ident-show-ad-ident",
+          basePath: "",
+          pathMode: "filename"
         }
       };
     }
@@ -442,45 +448,36 @@
       return Date.now().toString(36) + Math.random().toString(36).slice(2);
     }
 
-    function getFields(type) {
-      if (type === "show") {
-        return {
-          title: document.getElementById("showTitle"),
-          url: document.getElementById("showUrl"),
-          duration: document.getElementById("showDuration"),
-          unit: document.getElementById("showUnit")
-        };
-      }
-      if (type === "ident") {
-        return {
-          title: document.getElementById("identTitle"),
-          url: document.getElementById("identUrl"),
-          duration: document.getElementById("identDuration"),
-          unit: document.getElementById("identUnit")
-        };
-      }
+    function getFileInput(type) {
+      if (type === "show") return document.getElementById("showFiles");
+      if (type === "ident") return document.getElementById("identFiles");
+      return document.getElementById("adFiles");
+    }
+
+    function getDurationFields(type) {
+      if (type === "show") return {
+        duration: document.getElementById("showDuration"),
+        unit: document.getElementById("showUnit")
+      };
+      if (type === "ident") return {
+        duration: document.getElementById("identDuration"),
+        unit: document.getElementById("identUnit")
+      };
       return {
-        title: document.getElementById("adTitle"),
-        url: document.getElementById("adUrl"),
         duration: document.getElementById("adDuration"),
         unit: document.getElementById("adUnit")
       };
     }
 
-    function addVideo(type) {
-      const fields = getFields(type);
-      const title = fields.title.value.trim();
-      const url = fields.url.value.trim();
+    function addFiles(type) {
+      const input = getFileInput(type);
+      const fields = getDurationFields(type);
+      const files = Array.from(input.files || []);
       const duration = Number(fields.duration.value);
       const unit = fields.unit.value;
 
-      if (!title) {
-        alert("Βάλε τίτλο.");
-        return;
-      }
-
-      if (!url) {
-        alert("Βάλε βίντεο / URL / m3u8.");
+      if (!files.length) {
+        alert("Διάλεξε τουλάχιστον ένα βίντεο από τον υπολογιστή σου.");
         return;
       }
 
@@ -489,16 +486,38 @@
         return;
       }
 
-      state[type].push({ id: uid(), type, title, url, duration, unit });
+      files.forEach(file => {
+        const id = uid();
+        const objectUrl = URL.createObjectURL(file);
+        objectUrls.set(id, objectUrl);
+
+        state[type].push({
+          id,
+          type,
+          title: cleanTitle(file.name),
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type || "video",
+          duration,
+          unit,
+          addedAt: new Date().toISOString()
+        });
+      });
+
+      input.value = "";
       saveState();
-
-      if (type !== "ident") fields.title.value = "";
-      fields.url.value = "";
-
       renderAll();
     }
 
+    function cleanTitle(fileName) {
+      return fileName.replace(/\.[^/.]+$/, "");
+    }
+
     function deleteVideo(type, id) {
+      if (objectUrls.has(id)) {
+        URL.revokeObjectURL(objectUrls.get(id));
+        objectUrls.delete(id);
+      }
       state[type] = state[type].filter(item => item.id !== id);
       saveState();
       renderAll();
@@ -508,10 +527,8 @@
       const list = state[type];
       const index = list.findIndex(item => item.id === id);
       if (index < 0) return;
-
       const newIndex = index + direction;
       if (newIndex < 0 || newIndex >= list.length) return;
-
       [list[index], list[newIndex]] = [list[newIndex], list[index]];
       saveState();
       renderAll();
@@ -546,6 +563,8 @@
       state.settings.identBefore = document.getElementById("identBefore").value;
       state.settings.identAfter = document.getElementById("identAfter").value;
       state.settings.playMode = document.getElementById("playMode").value;
+      state.settings.basePath = document.getElementById("basePath").value.trim();
+      state.settings.pathMode = document.getElementById("pathMode").value;
       saveState();
     }
 
@@ -563,7 +582,8 @@
         sourceId: item.id,
         type: forcedType || item.type,
         title: item.title,
-        url: item.url,
+        fileName: item.fileName,
+        fileSize: item.fileSize,
         duration: item.duration,
         unit: item.unit,
         seconds: durationSeconds(item)
@@ -583,6 +603,7 @@
         const entry = cloneAsScheduleItem(item, typeOverride);
         entry.start = secondsToTime(cursor);
         entry.end = secondsToTime(cursor + entry.seconds);
+        entry.exportPath = buildExportPath(entry.fileName);
         timeline.push(entry);
         cursor += entry.seconds;
       }
@@ -615,6 +636,40 @@
       return timeline;
     }
 
+    function normalizeSlash(path) {
+      return String(path || "").replaceAll("\\", "/");
+    }
+
+    function ensureTrailingSlash(path) {
+      if (!path) return "";
+      return path.endsWith("/") ? path : path + "/";
+    }
+
+    function encodeFileUrlPath(path) {
+      return normalizeSlash(path).split("/").map(part => encodeURIComponent(part)).join("/");
+    }
+
+    function buildExportPath(fileName) {
+      const settings = state.settings || defaultState().settings;
+      const mode = settings.pathMode || "filename";
+      let basePath = normalizeSlash(settings.basePath || "");
+
+      if (mode === "filename") {
+        return fileName;
+      }
+
+      if (mode === "folder") {
+        return ensureTrailingSlash(basePath) + fileName;
+      }
+
+      if (mode === "fileurl") {
+        basePath = basePath.replace(/^file:\/\/\//i, "");
+        return "file:///" + ensureTrailingSlash(encodeFileUrlPath(basePath)) + encodeURIComponent(fileName);
+      }
+
+      return fileName;
+    }
+
     function typeLabel(type) {
       if (type === "show") return "ΕΚΠΟΜΠΗ";
       if (type === "ident") return "IDENT";
@@ -644,18 +699,23 @@
         return;
       }
 
-      box.innerHTML = list.map((item, index) => `
-        <div class="video-item">
-          <strong>${escapeHtml(item.title)}</strong>
-          <div class="small">${escapeHtml(item.url)}</div>
-          <div class="small">Διάρκεια: ${secondsToLabel(durationSeconds(item))}</div>
-          <div class="actions" style="margin-top:8px;">
-            <button class="gray" onclick="moveVideo('${type}', '${item.id}', -1)">↑</button>
-            <button class="gray" onclick="moveVideo('${type}', '${item.id}', 1)">↓</button>
-            <button class="red" onclick="deleteVideo('${type}', '${item.id}')">Διαγραφή</button>
+      box.innerHTML = list.map(item => {
+        const previewUrl = objectUrls.get(item.id);
+        return `
+          <div class="video-item">
+            <strong>${escapeHtml(item.fileName)}</strong>
+            <div class="small">Τίτλος: ${escapeHtml(item.title)}</div>
+            <div class="small">Διάρκεια: ${secondsToLabel(durationSeconds(item))}</div>
+            <div class="small">Μέγεθος: ${formatBytes(item.fileSize || 0)}</div>
+            ${previewUrl ? `<video controls src="${previewUrl}"></video>` : `<div class="small">Preview διαθέσιμο μόνο μέχρι να κλείσει η σελίδα και αν ξαναδιαλέξεις το αρχείο.</div>`}
+            <div class="actions" style="margin-top:8px;">
+              <button class="gray" onclick="moveVideo('${type}', '${item.id}', -1)">↑</button>
+              <button class="gray" onclick="moveVideo('${type}', '${item.id}', 1)">↓</button>
+              <button class="red" onclick="deleteVideo('${type}', '${item.id}')">Διαγραφή</button>
+            </div>
           </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     function renderTimeline() {
@@ -663,7 +723,7 @@
       const body = document.getElementById("timelineBody");
 
       if (!timeline.length) {
-        body.innerHTML = `<tr><td colspan="5" class="small">Βάλε τουλάχιστον μία εκπομπή για να εμφανιστεί πρόγραμμα.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="5" class="small">Βάλε τουλάχιστον ένα αρχείο στην ΕΚΠΟΜΠΗ για να εμφανιστεί πρόγραμμα.</td></tr>`;
         return;
       }
 
@@ -671,9 +731,9 @@
         <tr>
           <td><strong>${item.start} - ${item.end}</strong></td>
           <td><span class="type-pill ${typeClass(item.type)}">${typeLabel(item.type)}</span></td>
-          <td>${escapeHtml(item.title)}</td>
+          <td>${escapeHtml(item.fileName)}</td>
           <td>${secondsToLabel(item.seconds)}</td>
-          <td class="small">${escapeHtml(item.url)}</td>
+          <td class="small">${escapeHtml(item.exportPath)}</td>
         </tr>
       `).join("");
     }
@@ -681,16 +741,16 @@
     function buildM3U8() {
       const timeline = buildTimeline();
       let output = "#EXTM3U\n";
-      output += "#PLAYLIST:Scheduled TV Playlist\n";
+      output += "#PLAYLIST:Scheduled Local Video Playlist\n";
       output += "#TIMEZONE:Europe/Athens\n";
       output += `#START:${state.settings.startTime}\n`;
       output += "\n";
 
       timeline.forEach(item => {
         output += `#EXT-X-PROGRAM-DATETIME:${item.start}\n`;
-        output += `#EXTINF:${item.seconds},${item.start} - ${item.end} | ${typeLabel(item.type)} | ${item.title}\n`;
-        output += `#TVSCHED:type=${item.type};start=${item.start};end=${item.end};title=${safeAttr(item.title)}\n`;
-        output += `${item.url}\n\n`;
+        output += `#EXTINF:${item.seconds},${item.start} - ${item.end} | ${typeLabel(item.type)} | ${item.fileName}\n`;
+        output += `#TVSCHED:type=${item.type};start=${item.start};end=${item.end};file=${safeAttr(item.fileName)}\n`;
+        output += `${item.exportPath}\n\n`;
       });
 
       return output;
@@ -700,19 +760,21 @@
       document.getElementById("m3uPreview").textContent = buildM3U8();
     }
 
-    function renderAll() {
-      restoreSettingsToState();
-      renderLists();
-      renderTimeline();
-      renderPreview();
-    }
-
-    function restoreSettingsToState() {
+    function restoreSettingsToUi() {
       const s = state.settings || defaultState().settings;
       document.getElementById("startTime").value = s.startTime || "15:00";
       document.getElementById("identBefore").value = s.identBefore || "yes";
       document.getElementById("identAfter").value = s.identAfter || "yes";
       document.getElementById("playMode").value = s.playMode || "ident-show-ad-ident";
+      document.getElementById("basePath").value = s.basePath || "";
+      document.getElementById("pathMode").value = s.pathMode || "filename";
+    }
+
+    function renderAll() {
+      getSettingsFromUi();
+      renderLists();
+      renderTimeline();
+      renderPreview();
     }
 
     function downloadM3U8() {
@@ -729,10 +791,25 @@
     }
 
     function clearAll() {
-      if (!confirm("Να σβηστούν όλα τα βίντεο;")) return;
+      if (!confirm("Να σβηστούν όλα τα βίντεο από τη λίστα;")) return;
+      objectUrls.forEach(url => URL.revokeObjectURL(url));
+      objectUrls.clear();
       state = defaultState();
       saveState();
+      restoreSettingsToUi();
       renderAll();
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return "-";
+      const units = ["B", "KB", "MB", "GB"];
+      let value = bytes;
+      let index = 0;
+      while (value >= 1024 && index < units.length - 1) {
+        value /= 1024;
+        index++;
+      }
+      return `${value.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
     }
 
     function escapeHtml(value) {
@@ -748,7 +825,7 @@
       return String(value || "").replaceAll(";", ",").replaceAll("\n", " ");
     }
 
-    restoreSettingsToState();
+    restoreSettingsToUi();
     renderAll();
   </script>
 </body>
