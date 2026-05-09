@@ -448,8 +448,9 @@
           title: cleanTitle(file.name),
           size: file.size,
           realSeconds,
-          playSeconds: loopHours ? Math.round(loopHours * 3600) : realSeconds,
+          playSeconds: realSeconds,
           loopHours,
+          loopTotalSeconds: loopHours ? Math.round(loopHours * 3600) : null,
           addedAt: new Date().toISOString()
         });
       }
@@ -532,8 +533,8 @@
       return "file:///" + trailingSlash(encodePathParts(base)) + encodeURIComponent(fileName);
     }
 
-    function makeEntry(item, type, cursor) {
-      const sec = item.playSeconds || item.realSeconds || 1;
+    function makeEntry(item, type, cursor, forcedSeconds = null, repeatInfo = null) {
+      const sec = forcedSeconds || item.playSeconds || item.realSeconds || 1;
       return {
         type,
         fileName: item.fileName,
@@ -543,6 +544,7 @@
         seconds: sec,
         realSeconds: item.realSeconds || sec,
         loopHours: item.loopHours || null,
+        repeatInfo,
         path: exportPath(item.fileName)
       };
     }
@@ -577,10 +579,27 @@
         return ad;
       }
 
+      function pushTeleLoop(tele) {
+        const total = tele.loopTotalSeconds || tele.playSeconds || tele.realSeconds || 1;
+        const oneVideo = tele.realSeconds || tele.playSeconds || 1;
+        let remaining = total;
+        let repeat = 1;
+        const totalRepeats = Math.ceil(total / oneVideo);
+
+        while (remaining > 0) {
+          const thisDuration = Math.min(oneVideo, remaining);
+          const entry = makeEntry(tele, "tele", cursor, thisDuration, `${repeat}/${totalRepeats}`);
+          timeline.push(entry);
+          cursor += thisDuration;
+          remaining -= thisDuration;
+          repeat++;
+        }
+      }
+
       function pushTeleBlock() {
         for (const tele of state.tele) {
           push(teleStartIdent, "teleStartIdent");
-          push(tele, "tele");
+          pushTeleLoop(tele);
           push(teleEndIdent, "teleEndIdent");
         }
       }
@@ -648,7 +667,7 @@
         <div class="item">
           <strong>${esc(x.fileName)}</strong>
           <div class="small">Διάρκεια: ${fmtDuration(x.realSeconds)}</div>
-          ${x.loopHours ? `<div class="small">Loop: ${x.loopHours} ώρες / ${fmtDuration(x.playSeconds)}</div>` : ""}
+          ${x.loopHours ? `<div class="small">Loop στόχος: ${x.loopHours} ώρες / ${fmtDuration(x.loopTotalSeconds || x.playSeconds)}</div>` : ""}
           <div class="small">${fmtBytes(x.size)}</div>
           <div class="actions">
             <button class="gray" onclick="moveItem('${type}','${x.id}',-1)">↑</button>
@@ -669,7 +688,7 @@
         <tr>
           <td><strong>${x.start} - ${x.end}</strong></td>
           <td><span class="pill ${pillClass(x.type)}">${label(x.type)}</span></td>
-          <td>${esc(x.fileName)}</td>
+          <td>${esc(x.fileName)}${x.repeatInfo ? `<div class="small">Επανάληψη ${x.repeatInfo}</div>` : ""}</td>
           <td>${fmtDuration(x.seconds)}</td>
           <td class="small">${esc(x.path)}</td>
         </tr>
@@ -684,7 +703,8 @@
       out += `#START:${state.settings.startTime}\n\n`;
       for (const x of t) {
         out += `#EXT-X-PROGRAM-DATETIME:${x.start}\n`;
-        out += `#EXTINF:${x.seconds},${x.start} - ${x.end} | ${label(x.type)} | ${x.fileName}\n`;
+        out += `#EXTINF:${x.seconds},${x.start} - ${x.end} | ${label(x.type)} | ${x.fileName}${x.repeatInfo ? " | repeat " + x.repeatInfo : ""}
+`;
         out += `#TVSCHED:type=${x.type};start=${x.start};end=${x.end};file=${safe(x.fileName)}\n`;
         out += `${x.path}\n\n`;
       }
