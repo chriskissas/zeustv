@@ -16,6 +16,10 @@
       --red: #fb7185;
       --yellow: #fbbf24;
       --purple: #c084fc;
+      --orange: #fb923c;
+      --pink: #f472b6;
+      --orange: #fb923c;
+      --pink: #f472b6;
     }
 
     * { box-sizing: border-box; }
@@ -39,11 +43,8 @@
 
     h1 { margin: 0 0 6px; font-size: 26px; }
     h2 { margin: 0 0 12px; font-size: 18px; }
-    p { margin: 0; color: var(--muted); line-height: 1.45; }
-
-    main {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+    p { margin: 0; color: var(--muted); line-height:grid-template-columns: repeat(5, 1fr); grid;
+      grid-template-columns: repeat(5, 1fr);
       gap: 16px;
       padding: 16px;
     }
@@ -74,9 +75,12 @@
       font-size: 12px;
     }
 
-    .badge-show { background: var(--green); }
-    .badge-ident { background: var(--blue); }
+    .badge-show { background: var(--green); }.badge-ad { background: var(--yellow); }
+    .badge-tele { background: var(--orange); }
+    .badge-teleident { background: var(--pink); }ue); }
     .badge-ad { background: var(--yellow); }
+    .badge-tele { background: var(--orange); }
+    .badge-teleident { background: var(--pink); }
 
     label {
       display: block;
@@ -119,14 +123,17 @@
     button:hover { opacity: 0.9; }
     button:active { transform: scale(0.99); }
 
-    .green { background: var(--green); color: #052e1c; }
-    .yellow { background: var(--yellow); color: #3b2500; }
+    .green { background: var(--.red { background: var(--red); color: #fff; }
+    .tele { background: var(--orange); color: #2b1100; }
+    .teleident { background: var(--pink); color: #2b0018; }round: var(--yellow); color: #3b2500; }
     .purple { background: var(--purple); color: #210333; }
     .red { background: var(--red); color: #fff; }
+    .telegrid-template-columns: repeat(5, 1fr);: #2b1100; }
+    .teleident { background: var(--pink); color: #2b0018; }
     .gray { background: #334155; color: var(--text); }
 
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
     .btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
 
     .item-list {
@@ -195,6 +202,8 @@
     .type-show { background: var(--green); }
     .type-ident { background: var(--blue); }
     .type-ad { background: var(--yellow); }
+    .type-tele { background: var(--orange); }
+    .type-teleIdent { background: var(--pink); }
 
     .actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .actions button { width: auto; padding: 7px 9px; font-size: 12px; border-radius: 9px; }
@@ -230,14 +239,7 @@
 
     video {
       width: 100%;
-      max-height: 140px;
-      margin-top: 8px;
-      border-radius: 12px;
-      background: #000;
-      border: 1px solid var(--border);
-    }
-
-    @media (max-width: 1100px) {
+      <p>Διάλεξε βίντεο από τον υπολογιστή σου: Εκπομπές, Ident, Διαφημίσεις, Τηλεπωλήσεις και Ident Τηλεπώλησης. Μετά βλέπεις τι ώρα θα παίξει το καθένα και κάνεις export σε M3U8.</p> 1100px) {
       main { grid-template-columns: 1fr; }
       .settings-row, .path-row { grid-template-columns: 1fr; }
     }
@@ -246,7 +248,7 @@
 <body>
   <header>
     <h1>Local Video M3U8 Builder</h1>
-    <p>Διάλεξε βίντεο από τον υπολογιστή σου στα τρία πανελάκια: Εκπομπές, Ident, Διαφημίσεις. Μετά βλέπεις τι ώρα θα παίξει το καθένα και κάνεις export σε M3U8.</p>
+    <p>Διάλεξε βίντεο από τον υπολογιστή σου: Εκπομπές, Ident, Διαφημίσεις, Τηλεπωλήσεις και Ident Τηλεπώλησης. Μετά βλέπεις τι ώρα θα παίξει το καθένα και κάνεις export σε M3U8.</p>
   </header>
 
   <main>
@@ -274,20 +276,7 @@
       </div>
 
       <label>Επιλογή ident βίντεο από τον υπολογιστή</label>
-      <input id="identFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
-
-      <div class="warning">
-        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο ident.
-      </div>
-
-      <button style="margin-top:12px;" onclick="addFiles('ident')">Προσθήκη Ident</button>
-      <div id="identList" class="item-list"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-title">
-        <h2>ΔΙΑΦΗΜΙΣΗ</h2>
-        <span class="badge badge-ad">ADS</span>
+      <input id="identFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.a<span class="badge badge-ad">ADS</span>
       </div>
 
       <label>Επιλογή διαφημιστικών βίντεο από τον υπολογιστή</label>
@@ -301,8 +290,91 @@
       <div id="adList" class="item-list"></div>
     </section>
 
-    <section class="wide-panel">
-      <h2>Ρυθμίσεις εξαγωγής και ώρας</h2>
+    <section class="panel">
+      <div class="panel-title">
+        <h2>ΤΗΛΕΠΩΛΗΣΕΙΣ</h2>
+        <span class="badge badge-tele">TELESHOP</span>
+      </div>
+
+      <label>Επιλογή βίντεο τηλεπώλησης από τον υπολογιστή</label>
+      <input id="teleFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
+
+      <label>Πόσες ώρες να κάνει loop κάθε βίντεο;</label>
+      <input id="teleLoopHours" type="number" min="0.1" step="0.1" value="1" />
+
+      <div class="warning">
+        Το βίντεο θα επαναλαμβάνεται αυτόματα μέχρι να συμπληρώσει τις ώρες loop που βάζεις.
+      </div>
+
+      <button class="tele" style="margin-top:12px;" onclick="addFiles('tele')">Προσθήκη Τηλεπωλήσεων</button>
+      <div id="teleList" class="item-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <h2>IDENT ΤΗΛΕΠΩΛΗΣΗΣ</h2>
+        <span class="badge badge-teleident">TELE IDENT</span>
+      </div>
+
+      <label>Επιλογή ident τηλεπώλησης από τον υπολογιστή</label>
+      <input id="teleIdentFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
+
+      <div class="warning">
+        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο ident τηλεπώλησης.
+      </div>
+
+      <button class="teleident" style="margin-top:12px;" onclick="addFiles('teleIdent')">Προσθήκη Ident Τηλεπώλησης</button>
+      <div id="teleIdentList" class="item-list"></div>
+    </section>
+
+    <section class="wide-panel">le" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
+
+      <div class="warning">
+        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο διαφήμισης.
+      </div>
+
+      <button class="yellow" style="margin-top:12px;" onclick="addFiles('ad')">Προσθήκη Διαφημίσεων</button>
+      <div id="adList" class="item-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <h2>ΤΗΛΕΠΩΛΗΣΕΙΣ</h2>
+        <span class="badge badge-tele">TELESHOP</span>
+      </div>
+
+      <label>Επιλογή βίντεο τηλεπώλησης από τον υπολογιστή</label>
+      <input id="teleFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
+
+      <label>Πόσες ώρες να κάνει loop κάθε βίντεο;</label>
+      <input id="teleLoopHours" type="number" min="0.1" step="0.1" value="1" />
+
+      <div class="warning">
+        Το βίντεο τηλεπώλησης θα επαναλαμβάνεται αυτόματα μέχρι να συμπληρώσει τις ώρες loop που βάζεις.
+      </div>
+
+      <button class="tele" style="margin-top:12px;" onclick="addFiles('tele')">Προσθήκη Τηλεπωλήσεων</button>
+      <div id="teleList" class="item-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <h2>IDENT ΤΗΛΕΠΩΛΗΣΗΣ</h2>
+        <span class="badge badge-teleident">TELE IDENT</span>
+      </div>
+
+      <label>Επιλογή ident τηλεπώλησης από τον υπολογιστή</label>
+      <input id="teleIdentFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
+
+      <div class="warning">
+        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο ident τηλεπώλησης.
+      </div>
+
+      <button class="teleident" style="margin-top:12px;" onclick="addFiles('teleIdent')">Προσθήκη Ident Τηλεπώλησης</button>
+      <div id="teleIdentList" class="item-list"></div>
+    </section>
+
+    $1
 
       <div class="settings-row">
         <div>
@@ -336,7 +408,7 @@
       <div class="path-row">
         <div>
           <label>Φάκελος βίντεο για export M3U8</label>
-          <input id="basePath" placeholder="π.χ. C:/TV/videos/ ή file:///C:/TV/videos/" onchange="renderAll()" />
+          <input id="basePath" placeho.χ. C:/TV/videos/ ή file:///C:/TV/videos/" onchange="renderAll()" />
         </div>
         <div>
           <label>Μορφή path</label>
@@ -353,8 +425,7 @@
       </div>
 
       <div class="btnrow">
-        <button class="purple" onclick="downloadM3U8()">Εξαγωγή M3U8</button>
-        <button class="red" onclick="clearAll()">Καθαρισμός Όλων</button>
+        <button class="purp/button>
       </div>
     </section>
 
@@ -391,6 +462,8 @@
         show: [],
         ident: [],
         ad: [],
+        tele: [],
+        teleIdent: [],
         settings: {
           startTime: "15:00",
           identBefore: "yes",
@@ -410,8 +483,7 @@
       }
     }
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    functi);
     }
 
     function uid() {
@@ -421,7 +493,9 @@
     function getFileInput(type) {
       if (type === "show") return document.getElementById("showFiles");
       if (type === "ident") return document.getElementById("identFiles");
-      return document.getElementById("adFiles");
+      if (type === "ad") return document.getElementById("adFiles");
+      if (typ.getElementById("teleFiles");
+      return document.getElementById("teleIdentFiles");
     }
 
     function readVideoDuration(file) {
@@ -460,6 +534,7 @@
         objectUrls.set(id, objectUrl);
 
         const autoSeconds = await readVideoDuration(file);
+        const loopHours = type === "tele" ? Number(document.getElementById("teleLoopHours").value || 1) : null;
 
         state[type].push({
           id,
@@ -469,6 +544,8 @@
           fileSize: file.size,
           fileType: file.type || "video",
           durationSeconds: autoSeconds,
+          loopHours: loopHours,
+          loopTotalSeconds: loopHours ? Math.max(1, Math.round(loopHours * 3600)) : null,
           addedAt: new Date().toISOString()
         });
       }
@@ -504,8 +581,7 @@
     }
 
     function durationSeconds(item) {
-      if (item.durationSeconds) return Number(item.durationSeconds);
-      return item.unit === "minutes" ? Number(item.duration) * 60 : Number(item.duration || 1);
+      if (item.durationSeconds) || 1);
     }
 
     function secondsToLabel(seconds) {
@@ -522,8 +598,7 @@
 
     function secondsToTime(total) {
       total = ((Math.round(total) % 86400) + 86400) % 86400;
-      const h = Math.floor(total / 3600);
-      const m = Math.floor((total % 3600) / 60);
+      const h = Math.floor(totah.floor((total % 3600) / 60);
       const s = total % 60;
       return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
     }
@@ -534,32 +609,7 @@
       state.settings.identAfter = document.getElementById("identAfter").value;
       state.settings.playMode = document.getElementById("playMode").value;
       state.settings.basePath = document.getElementById("basePath").value.trim();
-      state.settings.pathMode = document.getElementById("pathMode").value;
-      saveState();
-    }
-
-    function firstIdent() {
-      return state.ident[0] || null;
-    }
-
-    function firstAd(index) {
-      if (state.ad.length === 0) return null;
-      return state.ad[index % state.ad.length];
-    }
-
-    function cloneAsScheduleItem(item, forcedType) {
-      return {
-        sourceId: item.id,
-        type: forcedType || item.type,
-        title: item.title,
-        fileName: item.fileName,
-        fileSize: item.fileSize,
-        durationSeconds: durationSeconds(item),
-        seconds: durationSeconds(item)
-      };
-    }
-
-    function buildTimeline() {
+      state.settings.pathMode = document.g
       getSettingsFromUi();
 
       const timeline = [];
@@ -602,6 +652,12 @@
         }
       });
 
+      state.tele.forEach(tele => {
+        push(firstTeleIdent(), "teleIdent");
+        push(tele, "tele");
+        push(firstTeleIdent(), "teleIdent");
+      });
+
       return timeline;
     }
 
@@ -621,10 +677,7 @@
     function buildExportPath(fileName) {
       const settings = state.settings || defaultState().settings;
       const mode = settings.pathMode || "filename";
-      let basePath = normalizeSlash(settings.basePath || "");
-
-      if (mode === "filename") {
-        return fileName;
+      let basePath = normalizeSlash(setting    return fileName;
       }
 
       if (mode === "folder") {
@@ -633,23 +686,19 @@
 
       if (mode === "fileurl") {
         basePath = basePath.replace(/^file:\/\/\//i, "");
-        return "file:///" + ensureTrailingSlash(encodeFileUrlPath(basePath)) + encodeURIComponent(fileName);
-      }
-
-      return fileName;
-    }
+        return "file:///" + ensureTrailingSlash(encodeFileUrlPath(basePath)) + encodeURIC   }
 
     function typeLabel(type) {
       if (type === "show") return "ΕΚΠΟΜΠΗ";
       if (type === "ident") return "IDENT";
       if (type === "ad") return "ΔΙΑΦΗΜΙΣΗ";
-      return type;
-    }
-
-    function typeClass(type) {
+      if (type === "tele") return "ΤΗΛΕΠΩΛΗΣΗ";
+      if (type === "teleIdent") return "IDENT ΤΗΛΕΠΩΛΗΣΗΣ";    function typeClass(type) {
       if (type === "show") return "type-show";
       if (type === "ident") return "type-ident";
       if (type === "ad") return "type-ad";
+      if (type === "tele") return "type-tele";
+      if (type === "teleIdent") return "type-teleIdent";
       return "";
     }
 
@@ -657,14 +706,15 @@
       renderList("show", "showList");
       renderList("ident", "identList");
       renderList("ad", "adList");
+      renderList("tele", "teleList");
+      renderList("teleIdent", "teleIdentList");
     }
 
     function renderList(type, elementId) {
       const box = document.getElementById(elementId);
       const list = state[type];
 
-      if (!list.length) {
-        box.innerHTML = `<div class="small">Δεν έχεις βάλει ακόμα βίντεο.</div>`;
+      ifβίντεο.</div>`;
         return;
       }
 
@@ -674,7 +724,8 @@
           <div class="video-item">
             <strong>${escapeHtml(item.fileName)}</strong>
             <div class="small">Τίτλος: ${escapeHtml(item.title)}</div>
-            <div class="small">Διάρκεια αυτόματα: ${secondsToLabel(durationSeconds(item))}
+            <div class="small">Διάρκεια αρχείου: ${secondsToLabel(durationSeconds(item))}</div>
+            ${item.loopTotalSeconds ? `<div class="small">Loop συνολικά: ${secondsToLabel(item.loopTotalSeconds)} (${item.loopHours} ώρες)</div>` : ""}
             <div class="small">Μέγεθος: ${formatBytes(item.fileSize || 0)}</div>
             ${previewUrl ? `<video controls src="${previewUrl}"></video>` : `<div class="small">Preview διαθέσιμο μόνο μέχρι να κλείσει η σελίδα και αν ξαναδιαλέξεις το αρχείο.</div>`}
             <div class="actions" style="margin-top:8px;">
@@ -751,8 +802,7 @@
       const blob = new Blob([content], { type: "application/vnd.apple.mpegurl" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = "scheduled_playlist.m3u8";
+      a.hre3u8";
       document.body.appendChild(a);
       a.click();
       a.remove();
