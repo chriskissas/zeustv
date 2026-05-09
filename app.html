@@ -18,8 +18,6 @@
       --purple: #c084fc;
       --orange: #fb923c;
       --pink: #f472b6;
-      --orange: #fb923c;
-      --pink: #f472b6;
     }
 
     * { box-sizing: border-box; }
@@ -43,7 +41,10 @@
 
     h1 { margin: 0 0 6px; font-size: 26px; }
     h2 { margin: 0 0 12px; font-size: 18px; }
-    p { margin: 0; color: var(--muted); line-height:grid-template-columns: repeat(5, 1fr); grid;
+    p { margin: 0; color: var(--muted); line-height: 1.45; }
+
+    main {
+      display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 16px;
       padding: 16px;
@@ -75,9 +76,8 @@
       font-size: 12px;
     }
 
-    .badge-show { background: var(--green); }.badge-ad { background: var(--yellow); }
-    .badge-tele { background: var(--orange); }
-    .badge-teleident { background: var(--pink); }ue); }
+    .badge-show { background: var(--green); }
+    .badge-ident { background: var(--blue); }
     .badge-ad { background: var(--yellow); }
     .badge-tele { background: var(--orange); }
     .badge-teleident { background: var(--pink); }
@@ -123,12 +123,11 @@
     button:hover { opacity: 0.9; }
     button:active { transform: scale(0.99); }
 
-    .green { background: var(--.red { background: var(--red); color: #fff; }
-    .tele { background: var(--orange); color: #2b1100; }
-    .teleident { background: var(--pink); color: #2b0018; }round: var(--yellow); color: #3b2500; }
+    .green { background: var(--green); color: #052e1c; }
+    .yellow { background: var(--yellow); color: #3b2500; }
     .purple { background: var(--purple); color: #210333; }
     .red { background: var(--red); color: #fff; }
-    .telegrid-template-columns: repeat(5, 1fr);: #2b1100; }
+    .tele { background: var(--orange); color: #2b1100; }
     .teleident { background: var(--pink); color: #2b0018; }
     .gray { background: #334155; color: var(--text); }
 
@@ -239,7 +238,14 @@
 
     video {
       width: 100%;
-      <p>Διάλεξε βίντεο από τον υπολογιστή σου: Εκπομπές, Ident, Διαφημίσεις, Τηλεπωλήσεις και Ident Τηλεπώλησης. Μετά βλέπεις τι ώρα θα παίξει το καθένα και κάνεις export σε M3U8.</p> 1100px) {
+      max-height: 140px;
+      margin-top: 8px;
+      border-radius: 12px;
+      background: #000;
+      border: 1px solid var(--border);
+    }
+
+    @media (max-width: 1100px) {
       main { grid-template-columns: 1fr; }
       .settings-row, .path-row { grid-template-columns: 1fr; }
     }
@@ -276,58 +282,24 @@
       </div>
 
       <label>Επιλογή ident βίντεο από τον υπολογιστή</label>
-      <input id="identFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.a<span class="badge badge-ad">ADS</span>
+      <input id="identFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
+
+      <div class="warning">
+        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο ident.
+      </div>
+
+      <button style="margin-top:12px;" onclick="addFiles('ident')">Προσθήκη Ident</button>
+      <div id="identList" class="item-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <h2>ΔΙΑΦΗΜΙΣΗ</h2>
+        <span class="badge badge-ad">ADS</span>
       </div>
 
       <label>Επιλογή διαφημιστικών βίντεο από τον υπολογιστή</label>
       <input id="adFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
-
-      <div class="warning">
-        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο διαφήμισης.
-      </div>
-
-      <button class="yellow" style="margin-top:12px;" onclick="addFiles('ad')">Προσθήκη Διαφημίσεων</button>
-      <div id="adList" class="item-list"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-title">
-        <h2>ΤΗΛΕΠΩΛΗΣΕΙΣ</h2>
-        <span class="badge badge-tele">TELESHOP</span>
-      </div>
-
-      <label>Επιλογή βίντεο τηλεπώλησης από τον υπολογιστή</label>
-      <input id="teleFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
-
-      <label>Πόσες ώρες να κάνει loop κάθε βίντεο;</label>
-      <input id="teleLoopHours" type="number" min="0.1" step="0.1" value="1" />
-
-      <div class="warning">
-        Το βίντεο θα επαναλαμβάνεται αυτόματα μέχρι να συμπληρώσει τις ώρες loop που βάζεις.
-      </div>
-
-      <button class="tele" style="margin-top:12px;" onclick="addFiles('tele')">Προσθήκη Τηλεπωλήσεων</button>
-      <div id="teleList" class="item-list"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-title">
-        <h2>IDENT ΤΗΛΕΠΩΛΗΣΗΣ</h2>
-        <span class="badge badge-teleident">TELE IDENT</span>
-      </div>
-
-      <label>Επιλογή ident τηλεπώλησης από τον υπολογιστή</label>
-      <input id="teleIdentFiles" type="file" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
-
-      <div class="warning">
-        Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο ident τηλεπώλησης.
-      </div>
-
-      <button class="teleident" style="margin-top:12px;" onclick="addFiles('teleIdent')">Προσθήκη Ident Τηλεπώλησης</button>
-      <div id="teleIdentList" class="item-list"></div>
-    </section>
-
-    <section class="wide-panel">le" accept="video/*,.m3u8,.mp4,.mov,.mkv,.avi,.ts" multiple />
 
       <div class="warning">
         Η διάρκεια θα υπολογιστεί αυτόματα από το αρχείο διαφήμισης.
@@ -402,30 +374,37 @@
             <option value="show-ident-ad">Εκπομπή + Ident + Διαφήμιση</option>
             <option value="show-only-with-ident">Μόνο Εκπομπές με Ident πριν/μετά</option>
           </select>
+          <div class="small" style="margin-top:6px;">Οι διαφημίσεις μπαίνουν σε τυχαία σειρά κάθε φορά που γίνεται refresh/export.</div>
         </div>
       </div>
 
       <div class="path-row">
         <div>
           <label>Φάκελος βίντεο για export M3U8</label>
-          <input id="basePath" placeho.χ. C:/TV/videos/ ή file:///C:/TV/videos/" onchange="renderAll()" />
+          <input id="basePath" placeholder="π.χ. C:/Users/pc/Downloads/" onchange="renderAll()" />
+          <div class="grid3" style="margin-top:8px;">
+            <button class="gray" onclick="setDownloadsPath('windows')">Windows Downloads</button>
+            <button class="gray" onclick="setDownloadsPath('mac')">Mac Downloads</button>
+            <button class="gray" onclick="setDownloadsPath('linux')">Linux Downloads</button>
+          </div>
         </div>
         <div>
           <label>Μορφή path</label>
           <select id="pathMode" onchange="renderAll()">
             <option value="filename">Μόνο όνομα αρχείου</option>
             <option value="folder">Φάκελος + όνομα αρχείου</option>
-            <option value="fileurl">file:/// path</option>
+            <option value="fileurl" selected>file:/// path, προτείνεται</option>
           </select>
         </div>
       </div>
 
       <div class="warning">
-        Σημαντικό: Ο browser για λόγους ασφαλείας δεν δίνει το πλήρες path τύπου C:\\... μόνος του. Γι’ αυτό βάζεις εδώ τον φάκελο που έχεις τα βίντεο, π.χ. <strong>C:/TV/videos/</strong>, και το export φτιάχνει τις γραμμές με βάση αυτόν τον φάκελο.
+        Σημαντικό: Αν τα βίντεο είναι στα <strong>Στοιχεία λήψης / Downloads</strong>, βάλε τον πλήρη φάκελο, π.χ. <strong>C:/Users/pc/Downloads/</strong>, και στη Μορφή path διάλεξε <strong>file:/// path</strong>. Ο browser δεν μπορεί να βρει μόνος του το πραγματικό C:\ path για λόγους ασφαλείας.
       </div>
 
       <div class="btnrow">
-        <button class="purp/button>
+        <button class="purple" onclick="downloadM3U8()">Εξαγωγή M3U8</button>
+        <button class="red" onclick="clearAll()">Καθαρισμός Όλων</button>
       </div>
     </section>
 
@@ -470,7 +449,7 @@
           identAfter: "yes",
           playMode: "ident-show-ad-ident",
           basePath: "",
-          pathMode: "filename"
+          pathMode: "fileurl"
         }
       };
     }
@@ -483,7 +462,8 @@
       }
     }
 
-    functi);
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
     function uid() {
@@ -494,7 +474,7 @@
       if (type === "show") return document.getElementById("showFiles");
       if (type === "ident") return document.getElementById("identFiles");
       if (type === "ad") return document.getElementById("adFiles");
-      if (typ.getElementById("teleFiles");
+      if (type === "tele") return document.getElementById("teleFiles");
       return document.getElementById("teleIdentFiles");
     }
 
@@ -581,7 +561,8 @@
     }
 
     function durationSeconds(item) {
-      if (item.durationSeconds) || 1);
+      if (item.durationSeconds) return Number(item.durationSeconds);
+      return item.unit === "minutes" ? Number(item.duration) * 60 : Number(item.duration || 1);
     }
 
     function secondsToLabel(seconds) {
@@ -598,7 +579,8 @@
 
     function secondsToTime(total) {
       total = ((Math.round(total) % 86400) + 86400) % 86400;
-      const h = Math.floor(totah.floor((total % 3600) / 60);
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
       const s = total % 60;
       return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
     }
@@ -609,17 +591,68 @@
       state.settings.identAfter = document.getElementById("identAfter").value;
       state.settings.playMode = document.getElementById("playMode").value;
       state.settings.basePath = document.getElementById("basePath").value.trim();
-      state.settings.pathMode = document.g
+      state.settings.pathMode = document.getElementById("pathMode").value;
+      saveState();
+    }
+
+    function firstIdent() {
+      return state.ident[0] || null;
+    }
+
+    function shuffledAds() {
+      const list = [...state.ad];
+      for (let i = list.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
+      }
+      return list;
+    }
+
+    function getRandomAd(adPool, index) {
+      if (!adPool.length) return null;
+      return adPool[index % adPool.length];
+    }
+
+    function firstTeleIdent() {
+      return state.teleIdent[0] || null;
+    }
+
+    function cloneAsScheduleItem(item, forcedType) {
+      return {
+        sourceId: item.id,
+        type: forcedType || item.type,
+        title: item.title,
+        fileName: item.fileName,
+        fileSize: item.fileSize,
+        durationSeconds: durationSeconds(item),
+        seconds: item.loopTotalSeconds || durationSeconds(item)
+      };
+    }
+
+    function buildTimeline() {
       getSettingsFromUi();
 
       const timeline = [];
       const ident = firstIdent();
+      const adPool = shuffledAds();
       let adIndex = 0;
       let cursor = timeToSeconds(state.settings.startTime);
+
+      function isIdentType(type) {
+        return type === "ident" || type === "teleIdent";
+      }
 
       function push(item, typeOverride) {
         if (!item) return;
         const entry = cloneAsScheduleItem(item, typeOverride);
+        const previous = timeline[timeline.length - 1];
+
+        // Αν πάει να μπει ident αμέσως μετά από ident, κράτα μόνο ένα.
+        // Έτσι δεν έχουμε διπλό IDENT όταν τελειώνει μία εκπομπή και αρχίζει αμέσως άλλη.
+        if (previous && isIdentType(previous.type) && isIdentType(entry.type)) {
+          return;
+        }
+
         entry.start = secondsToTime(cursor);
         entry.end = secondsToTime(cursor + entry.seconds);
         entry.exportPath = buildExportPath(entry.fileName);
@@ -633,14 +666,14 @@
         if (mode === "show-ident-ad") {
           push(show, "show");
           push(ident, "ident");
-          push(firstAd(adIndex++), "ad");
+          push(getRandomAd(adPool, adIndex++), "ad");
           return;
         }
 
         if (mode === "ident-show-ad-ident") {
           push(ident, "ident");
           push(show, "show");
-          push(firstAd(adIndex++), "ad");
+          push(getRandomAd(adPool, adIndex++), "ad");
           push(ident, "ident");
           return;
         }
@@ -671,13 +704,21 @@
     }
 
     function encodeFileUrlPath(path) {
-      return normalizeSlash(path).split("/").map(part => encodeURIComponent(part)).join("/");
+      const normalized = normalizeSlash(path);
+      return normalized.split("/").map((part, index) => {
+        // Κράτα σωστό το Windows drive, π.χ. C: και όχι C%3A
+        if (index === 0 && /^[A-Za-z]:$/.test(part)) return part;
+        return encodeURIComponent(part);
+      }).join("/");
     }
 
     function buildExportPath(fileName) {
       const settings = state.settings || defaultState().settings;
-      const mode = settings.pathMode || "filename";
-      let basePath = normalizeSlash(setting    return fileName;
+      const mode = settings.pathMode || "fileurl";
+      let basePath = normalizeSlash(settings.basePath || "");
+
+      if (mode === "filename") {
+        return fileName;
       }
 
       if (mode === "folder") {
@@ -686,14 +727,39 @@
 
       if (mode === "fileurl") {
         basePath = basePath.replace(/^file:\/\/\//i, "");
-        return "file:///" + ensureTrailingSlash(encodeFileUrlPath(basePath)) + encodeURIC   }
+        return "file:///" + ensureTrailingSlash(encodeFileUrlPath(basePath)) + encodeURIComponent(fileName);
+      }
+
+      return fileName;
+    }
+
+    function setDownloadsPath(os) {
+      const input = document.getElementById("basePath");
+      const currentUser = "pc";
+
+      if (os === "windows") {
+        input.value = `C:/Users/${currentUser}/Downloads/`;
+      } else if (os === "mac") {
+        input.value = `/Users/${currentUser}/Downloads/`;
+      } else {
+        input.value = `/home/${currentUser}/Downloads/`;
+      }
+
+      document.getElementById("pathMode").value = "fileurl";
+      alert("Έβαλα φάκελο: C:/Users/pc/Downloads/");
+      renderAll();
+    }
 
     function typeLabel(type) {
       if (type === "show") return "ΕΚΠΟΜΠΗ";
       if (type === "ident") return "IDENT";
       if (type === "ad") return "ΔΙΑΦΗΜΙΣΗ";
       if (type === "tele") return "ΤΗΛΕΠΩΛΗΣΗ";
-      if (type === "teleIdent") return "IDENT ΤΗΛΕΠΩΛΗΣΗΣ";    function typeClass(type) {
+      if (type === "teleIdent") return "IDENT ΤΗΛΕΠΩΛΗΣΗΣ";
+      return type;
+    }
+
+    function typeClass(type) {
       if (type === "show") return "type-show";
       if (type === "ident") return "type-ident";
       if (type === "ad") return "type-ad";
@@ -714,7 +780,8 @@
       const box = document.getElementById(elementId);
       const list = state[type];
 
-      ifβίντεο.</div>`;
+      if (!list.length) {
+        box.innerHTML = `<div class="small">Δεν έχεις βάλει ακόμα βίντεο.</div>`;
         return;
       }
 
@@ -802,7 +869,8 @@
       const blob = new Blob([content], { type: "application/vnd.apple.mpegurl" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.hre3u8";
+      a.href = url;
+      a.download = "scheduled_playlist.m3u8";
       document.body.appendChild(a);
       a.click();
       a.remove();
