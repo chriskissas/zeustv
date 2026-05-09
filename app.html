@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TV Scheduler Panel</title>
+  <title>M3U8 TV Playlist Builder</title>
   <style>
     :root {
       --bg: #0f172a;
-      --panel: #111827;
-      --panel2: #1f2937;
+      --card: #111827;
+      --card2: #1f2937;
       --text: #f8fafc;
       --muted: #94a3b8;
       --border: #334155;
-      --accent: #38bdf8;
-      --danger: #fb7185;
-      --ok: #34d399;
-      --warn: #fbbf24;
+      --blue: #38bdf8;
+      --green: #34d399;
+      --red: #fb7185;
+      --yellow: #fbbf24;
       --purple: #c084fc;
     }
 
@@ -31,70 +31,101 @@
     header {
       padding: 22px;
       border-bottom: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.92);
       position: sticky;
       top: 0;
-      z-index: 10;
-      backdrop-filter: blur(10px);
+      z-index: 20;
+      backdrop-filter: blur(8px);
     }
 
-    header h1 {
-      margin: 0 0 6px;
-      font-size: 26px;
-    }
-
-    header p {
-      margin: 0;
-      color: var(--muted);
-    }
+    h1 { margin: 0 0 6px; font-size: 26px; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    p { margin: 0; color: var(--muted); }
 
     main {
       display: grid;
-      grid-template-columns: 430px 1fr;
-      gap: 18px;
-      padding: 18px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      padding: 16px;
     }
 
-    .card {
-      background: rgba(17, 24, 39, 0.94);
+    .panel, .wide-panel {
+      background: rgba(17, 24, 39, 0.95);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 16px;
-      box-shadow: 0 18px 45px rgba(0,0,0,0.22);
+      box-shadow: 0 18px 42px rgba(0,0,0,0.24);
     }
 
-    .card h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
+    .wide-panel {
+      grid-column: 1 / -1;
     }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #020617;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .badge-show { background: var(--green); }
+    .badge-ident { background: var(--blue); }
+    .badge-ad { background: var(--yellow); }
 
     label {
       display: block;
-      margin: 12px 0 6px;
+      margin: 10px 0 6px;
       color: var(--muted);
       font-size: 13px;
     }
 
-    input, select, textarea, button {
+    input, textarea, select, button {
       width: 100%;
       border-radius: 12px;
       border: 1px solid var(--border);
       background: #020617;
       color: var(--text);
-      padding: 11px;
+      padding: 10px;
       font-size: 14px;
       outline: none;
     }
 
     textarea {
-      min-height: 78px;
+      min-height: 70px;
       resize: vertical;
     }
 
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
     }
+
+    button {
+      background: var(--blue);
+      color: #001018;
+      border: 0;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.12s ease;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.99); }
+
+    .green { background: var(--green); color: #052e1c; }
+    .yellow { background: var(--yellow); color: #3b2500; }
+    .purple { background: var(--purple); color: #210333; }
+    .red { background: var(--red); color: #fff; }
+    .gray { background: #334155; color: var(--text); }
 
     .grid2 {
       display: grid;
@@ -112,57 +143,35 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 14px;
+      margin-top: 12px;
     }
 
-    button {
-      cursor: pointer;
-      background: var(--accent);
-      color: #001018;
-      font-weight: bold;
-      border: 0;
-      transition: transform 0.08s ease, opacity 0.12s ease;
+    .item-list {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+      max-height: 260px;
+      overflow: auto;
+      padding-right: 4px;
     }
 
-    button:hover { opacity: 0.9; }
-    button:active { transform: scale(0.99); }
-
-    .secondary {
-      background: #334155;
-      color: var(--text);
+    .video-item {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
     }
 
-    .danger {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    .ok {
-      background: var(--ok);
-      color: #052e1c;
-    }
-
-    .warn {
-      background: var(--warn);
-      color: #3b2500;
-    }
-
-    .purple {
-      background: var(--purple);
-      color: #210333;
+    .video-item strong {
+      display: block;
+      margin-bottom: 5px;
     }
 
     .small {
-      font-size: 12px;
       color: var(--muted);
-      line-height: 1.45;
-    }
-
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1fr 160px 160px;
-      gap: 10px;
-      margin-bottom: 14px;
+      font-size: 12px;
+      line-height: 1.35;
+      word-break: break-all;
     }
 
     table {
@@ -175,508 +184,555 @@
     th, td {
       padding: 11px 10px;
       border-bottom: 1px solid var(--border);
+      text-align: left;
       vertical-align: top;
       font-size: 13px;
     }
 
     th {
       color: var(--muted);
-      text-align: left;
       background: #020617;
-      position: sticky;
-      top: 91px;
-      z-index: 5;
     }
 
-    tr:hover td { background: rgba(56, 189, 248, 0.04); }
+    tr:hover td {
+      background: rgba(56,189,248,0.04);
+    }
 
-    .tag {
+    .type-pill {
       display: inline-block;
       padding: 4px 8px;
       border-radius: 999px;
-      font-size: 12px;
-      font-weight: bold;
       color: #020617;
-      margin-bottom: 4px;
+      font-weight: bold;
+      font-size: 12px;
     }
 
-    .tag-ident { background: #38bdf8; }
-    .tag-series { background: #a7f3d0; }
-    .tag-show { background: #fde68a; }
-    .tag-ads { background: #fecdd3; }
-    .tag-movie { background: #ddd6fe; }
-    .tag-other { background: #cbd5e1; }
+    .type-show { background: var(--green); }
+    .type-ident { background: var(--blue); }
+    .type-ad { background: var(--yellow); }
 
     .actions {
       display: flex;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
     .actions button {
-      padding: 7px 8px;
-      border-radius: 9px;
-      font-size: 12px;
       width: auto;
+      padding: 7px 9px;
+      font-size: 12px;
+      border-radius: 9px;
     }
 
-    .notice {
-      border: 1px dashed var(--border);
-      border-radius: 14px;
-      padding: 11px;
-      color: var(--muted);
-      margin-top: 12px;
-      line-height: 1.45;
-    }
-
-    .preview-box {
+    .preview {
       white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      font-size: 12px;
       background: #020617;
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 12px;
-      color: #dbeafe;
-      max-height: 260px;
+      max-height: 280px;
       overflow: auto;
-      font-family: Consolas, monospace;
-      font-size: 12px;
+      color: #dbeafe;
     }
 
-    .conflict {
-      color: var(--danger);
-      font-weight: bold;
+    .settings-row {
+      display: grid;
+      grid-template-columns: 160px 160px 160px 1fr;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
     }
 
-    .now {
-      outline: 2px solid var(--ok);
-      outline-offset: -2px;
-    }
-
-    @media (max-width: 980px) {
+    @media (max-width: 1100px) {
       main { grid-template-columns: 1fr; }
-      .toolbar { grid-template-columns: 1fr; }
-      th { position: static; }
+      .settings-row { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>TV Scheduler Panel</h1>
-    <p>Προγραμμάτισε σειρές, εκπομπές, διαφημίσεις και ident ανά ώρα Ελλάδας.</p>
+    <h1>M3U8 TV Playlist Builder</h1>
+    <p>Βάλε βίντεο σε τρία πανελάκια: Εκπομπές, Ident, Διαφημίσεις. Το πρόγραμμα υπολογίζει τις ώρες και κάνει export σε M3U8.</p>
   </header>
 
   <main>
-    <section class="card">
-      <h2>Προσθήκη προγράμματος</h2>
+    <section class="panel">
+      <div class="panel-title">
+        <h2>ΕΚΠΟΜΠΗ</h2>
+        <span class="badge badge-show">SHOW</span>
+      </div>
 
-      <label>Τύπος</label>
-      <select id="type">
-        <option value="series">Σειρά</option>
-        <option value="show">Εκπομπή</option>
-        <option value="movie">Ταινία</option>
-        <option value="ads">Διαφημίσεις</option>
-        <option value="ident">Ident Καναλιού</option>
-        <option value="other">Άλλο</option>
-      </select>
+      <label>Τίτλος εκπομπής</label>
+      <input id="showTitle" placeholder="π.χ. Πρωινή Εκπομπή" />
 
-      <label>Τίτλος</label>
-      <input id="title" placeholder="π.χ. Η σειρά μου - Επεισόδιο 12" />
+      <label>Βίντεο / URL / m3u8</label>
+      <input id="showUrl" placeholder="π.χ. https://site.com/show01.m3u8" />
 
       <div class="grid2">
-        <div>
-          <label>Ώρα έναρξης Ελλάδας</label>
-          <input id="start" type="time" value="18:00" />
-        </div>
         <div>
           <label>Διάρκεια</label>
-          <input id="duration" type="number" min="1" value="30" />
+          <input id="showDuration" type="number" min="1" value="30" />
+        </div>
+        <div>
+          <label>Μονάδα</label>
+          <select id="showUnit">
+            <option value="minutes">λεπτά</option>
+            <option value="seconds">δευτερόλεπτα</option>
+          </select>
         </div>
       </div>
 
-      <label>Μονάδα διάρκειας</label>
-      <select id="durationUnit">
-        <option value="minutes">Λεπτά</option>
-        <option value="seconds">Δευτερόλεπτα</option>
-      </select>
+      <button class="green" style="margin-top:12px;" onclick="addVideo('show')">Προσθήκη Εκπομπής</button>
+      <div id="showList" class="item-list"></div>
+    </section>
 
-      <label>URL βίντεο / m3u8 / αρχείο</label>
-      <input id="url" placeholder="π.χ. https://site.com/video.m3u8 ή C:\videos\episode.mp4" />
-
-      <label>Στήλη / Ζώνη</label>
-      <select id="column">
-        <option value="main">Κύριο πρόγραμμα</option>
-        <option value="repeat">Επαναλήψεις</option>
-        <option value="kids">Παιδική ζώνη</option>
-        <option value="late">Late night</option>
-        <option value="ads">Διαφημιστικό block</option>
-      </select>
-
-      <label>Σημειώσεις</label>
-      <textarea id="notes" placeholder="π.χ. Να μπει μετά από διαφημίσεις ή πριν το δελτίο"></textarea>
-
-      <div class="btnrow">
-        <button onclick="addItem()">Προσθήκη</button>
-        <button class="secondary" onclick="clearForm()">Καθαρισμός</button>
+    <section class="panel">
+      <div class="panel-title">
+        <h2>IDENT</h2>
+        <span class="badge badge-ident">CHANNEL IDENT</span>
       </div>
 
-      <div class="notice">
-        <strong>Ident καναλιού:</strong> Μπορείς να ορίσεις μόνιμο ident και να το βάζει αυτόματα πριν και μετά από κάθε κανονικό πρόγραμμα.
-      </div>
+      <label>Τίτλος ident</label>
+      <input id="identTitle" placeholder="π.χ. Ident Καναλιού" value="Ident Καναλιού" />
 
-      <h2 style="margin-top:18px;">Μόνιμο Ident</h2>
-      <label>Ident URL / αρχείο</label>
-      <input id="identUrl" placeholder="π.χ. C:\videos\ident.mp4" />
+      <label>Βίντεο / URL / m3u8</label>
+      <input id="identUrl" placeholder="π.χ. https://site.com/ident.mp4" />
 
       <div class="grid2">
         <div>
-          <label>Διάρκεια ident</label>
+          <label>Διάρκεια</label>
           <input id="identDuration" type="number" min="1" value="10" />
         </div>
         <div>
           <label>Μονάδα</label>
           <select id="identUnit">
-            <option value="seconds">Δευτερόλεπτα</option>
-            <option value="minutes">Λεπτά</option>
+            <option value="seconds">δευτερόλεπτα</option>
+            <option value="minutes">λεπτά</option>
           </select>
         </div>
       </div>
 
-      <div class="grid2" style="margin-top:10px;">
-        <button class="purple" onclick="saveIdentSettings()">Αποθήκευση ident</button>
-        <button class="secondary" onclick="autoInsertIdents()">Βάλε ident αυτόματα</button>
+      <button style="margin-top:12px;" onclick="addVideo('ident')">Προσθήκη Ident</button>
+      <div id="identList" class="item-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <h2>ΔΙΑΦΗΜΙΣΗ</h2>
+        <span class="badge badge-ad">ADS</span>
       </div>
 
-      <h2 style="margin-top:18px;">Διαφημίσεις</h2>
-      <label>Γρήγορο διαφημιστικό block στις</label>
-      <div class="grid3">
-        <input id="adTime" type="time" value="19:55" />
-        <input id="adDuration" type="number" min="1" value="5" />
-        <button class="warn" onclick="quickAdBlock()">Add</button>
+      <label>Τίτλος διαφήμισης</label>
+      <input id="adTitle" placeholder="π.χ. Διαφήμιση 1" />
+
+      <label>Βίντεο / URL / m3u8</label>
+      <input id="adUrl" placeholder="π.χ. https://site.com/ad01.mp4" />
+
+      <div class="grid2">
+        <div>
+          <label>Διάρκεια</label>
+          <input id="adDuration" type="number" min="1" value="30" />
+        </div>
+        <div>
+          <label>Μονάδα</label>
+          <select id="adUnit">
+            <option value="seconds">δευτερόλεπτα</option>
+            <option value="minutes">λεπτά</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="yellow" style="margin-top:12px;" onclick="addVideo('ad')">Προσθήκη Διαφήμισης</button>
+      <div id="adList" class="item-list"></div>
+    </section>
+
+    <section class="wide-panel">
+      <h2>Ρυθμίσεις προγράμματος</h2>
+      <div class="settings-row">
+        <div>
+          <label>Ώρα έναρξης</label>
+          <input id="startTime" type="time" value="15:00" onchange="renderAll()" />
+        </div>
+        <div>
+          <label>Ident πριν από εκπομπή</label>
+          <select id="identBefore" onchange="renderAll()">
+            <option value="yes">Ναι</option>
+            <option value="no">Όχι</option>
+          </select>
+        </div>
+        <div>
+          <label>Ident μετά από εκπομπή</label>
+          <select id="identAfter" onchange="renderAll()">
+            <option value="yes">Ναι</option>
+            <option value="no">Όχι</option>
+          </select>
+        </div>
+        <div>
+          <label>Σειρά παιξίματος</label>
+          <select id="playMode" onchange="renderAll()">
+            <option value="show-ident-ad">Εκπομπή + Ident + Διαφήμιση</option>
+            <option value="ident-show-ad-ident">Ident + Εκπομπή + Διαφήμιση + Ident</option>
+            <option value="show-only-with-ident">Μόνο Εκπομπές με Ident πριν/μετά</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <button class="purple" onclick="downloadM3U8()">Εξαγωγή M3U8</button>
+        <button class="red" onclick="clearAll()">Καθαρισμός Όλων</button>
       </div>
     </section>
 
-    <section class="card">
-      <div class="toolbar">
-        <input id="search" placeholder="Αναζήτηση τίτλου, τύπου, ζώνης..." oninput="render()" />
-        <select id="filterColumn" onchange="render()">
-          <option value="all">Όλες οι στήλες</option>
-          <option value="main">Κύριο πρόγραμμα</option>
-          <option value="repeat">Επαναλήψεις</option>
-          <option value="kids">Παιδική ζώνη</option>
-          <option value="late">Late night</option>
-          <option value="ads">Διαφημιστικό block</option>
-        </select>
-        <button class="ok" onclick="downloadScheduleJson()">Export JSON</button>
-      </div>
-
-      <div class="btnrow" style="margin-bottom:14px;">
-        <button class="secondary" onclick="downloadM3U()">Export M3U</button>
-        <button class="danger" onclick="clearSchedule()">Διαγραφή όλων</button>
-      </div>
-
-      <h2>Ημερήσιο πρόγραμμα</h2>
+    <section class="wide-panel">
+      <h2>Τι ώρα θα παίξει</h2>
       <table>
         <thead>
           <tr>
             <th>Ώρα</th>
-            <th>Τύπος</th>
-            <th>Τίτλος / URL</th>
-            <th>Στήλη</th>
-            <th>Ενέργειες</th>
+            <th>Κατηγορία</th>
+            <th>Τίτλος</th>
+            <th>Διάρκεια</th>
+            <th>Βίντεο / URL</th>
           </tr>
         </thead>
-        <tbody id="scheduleBody"></tbody>
+        <tbody id="timelineBody"></tbody>
       </table>
+    </section>
 
-      <h2 style="margin-top:18px;">Preview για scheduler</h2>
-      <div id="jsonPreview" class="preview-box"></div>
+    <section class="wide-panel">
+      <h2>Preview M3U8</h2>
+      <div id="m3uPreview" class="preview"></div>
     </section>
   </main>
 
   <script>
-    const STORAGE_KEY = "tv_scheduler_items_v1";
-    const IDENT_KEY = "tv_scheduler_ident_v1";
+    const STORAGE_KEY = "simple_m3u8_tv_builder_v1";
 
-    let items = loadItems();
-    let editId = null;
+    let state = loadState();
 
-    const typeLabels = {
-      series: "Σειρά",
-      show: "Εκπομπή",
-      movie: "Ταινία",
-      ads: "Διαφημίσεις",
-      ident: "Ident Καναλιού",
-      other: "Άλλο"
-    };
-
-    const columnLabels = {
-      main: "Κύριο πρόγραμμα",
-      repeat: "Επαναλήψεις",
-      kids: "Παιδική ζώνη",
-      late: "Late night",
-      ads: "Διαφημιστικό block"
-    };
-
-    function loadItems() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveItems() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    }
-
-    function loadIdentSettings() {
-      try {
-        return JSON.parse(localStorage.getItem(IDENT_KEY)) || {
-          url: "",
-          duration: 10,
-          unit: "seconds"
-        };
-      } catch {
-        return { url: "", duration: 10, unit: "seconds" };
-      }
-    }
-
-    function saveIdentSettings() {
-      const settings = {
-        url: document.getElementById("identUrl").value.trim(),
-        duration: Number(document.getElementById("identDuration").value),
-        unit: document.getElementById("identUnit").value
+    function defaultState() {
+      return {
+        show: [],
+        ident: [],
+        ad: [],
+        settings: {
+          startTime: "15:00",
+          identBefore: "yes",
+          identAfter: "yes",
+          playMode: "ident-show-ad-ident"
+        }
       };
+    }
 
-      if (!settings.url) {
-        alert("Βάλε URL ή αρχείο για το ident.");
-        return;
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultState();
+      } catch {
+        return defaultState();
       }
-
-      localStorage.setItem(IDENT_KEY, JSON.stringify(settings));
-      alert("Το ident αποθηκεύτηκε.");
     }
 
-    function restoreIdentFields() {
-      const s = loadIdentSettings();
-      document.getElementById("identUrl").value = s.url || "";
-      document.getElementById("identDuration").value = s.duration || 10;
-      document.getElementById("identUnit").value = s.unit || "seconds";
-    }
-
-    function toMinutes(duration, unit) {
-      const value = Number(duration) || 0;
-      return unit === "seconds" ? value / 60 : value;
-    }
-
-    function toSeconds(duration, unit) {
-      const value = Number(duration) || 0;
-      return unit === "minutes" ? value * 60 : value;
-    }
-
-    function timeToMinutes(t) {
-      const [h, m] = t.split(":").map(Number);
-      return h * 60 + m;
-    }
-
-    function minutesToTime(total) {
-      total = ((Math.round(total) % 1440) + 1440) % 1440;
-      const h = Math.floor(total / 60);
-      const m = total % 60;
-      return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
-    }
-
-    function endTimeOf(item) {
-      return minutesToTime(timeToMinutes(item.start) + toMinutes(item.duration, item.durationUnit));
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
     function uid() {
       return Date.now().toString(36) + Math.random().toString(36).slice(2);
     }
 
-    function addItem() {
-      const item = {
-        id: editId || uid(),
-        type: document.getElementById("type").value,
-        title: document.getElementById("title").value.trim(),
-        start: document.getElementById("start").value,
-        duration: Number(document.getElementById("duration").value),
-        durationUnit: document.getElementById("durationUnit").value,
-        url: document.getElementById("url").value.trim(),
-        column: document.getElementById("column").value,
-        notes: document.getElementById("notes").value.trim()
+    function getFields(type) {
+      if (type === "show") {
+        return {
+          title: document.getElementById("showTitle"),
+          url: document.getElementById("showUrl"),
+          duration: document.getElementById("showDuration"),
+          unit: document.getElementById("showUnit")
+        };
+      }
+      if (type === "ident") {
+        return {
+          title: document.getElementById("identTitle"),
+          url: document.getElementById("identUrl"),
+          duration: document.getElementById("identDuration"),
+          unit: document.getElementById("identUnit")
+        };
+      }
+      return {
+        title: document.getElementById("adTitle"),
+        url: document.getElementById("adUrl"),
+        duration: document.getElementById("adDuration"),
+        unit: document.getElementById("adUnit")
       };
+    }
 
-      if (!item.title) {
+    function addVideo(type) {
+      const fields = getFields(type);
+      const title = fields.title.value.trim();
+      const url = fields.url.value.trim();
+      const duration = Number(fields.duration.value);
+      const unit = fields.unit.value;
+
+      if (!title) {
         alert("Βάλε τίτλο.");
         return;
       }
 
-      if (!item.start) {
-        alert("Βάλε ώρα έναρξης.");
+      if (!url) {
+        alert("Βάλε βίντεο / URL / m3u8.");
         return;
       }
 
-      if (!item.duration || item.duration <= 0) {
+      if (!duration || duration <= 0) {
         alert("Βάλε σωστή διάρκεια.");
         return;
       }
 
-      if (editId) {
-        items = items.map(x => x.id === editId ? item : x);
-        editId = null;
-      } else {
-        items.push(item);
-      }
+      state[type].push({ id: uid(), type, title, url, duration, unit });
+      saveState();
 
-      sortItems();
-      saveItems();
-      clearForm();
-      render();
+      if (type !== "ident") fields.title.value = "";
+      fields.url.value = "";
+
+      renderAll();
     }
 
-    function clearForm() {
-      editId = null;
-      document.getElementById("type").value = "series";
-      document.getElementById("title").value = "";
-      document.getElementById("start").value = "18:00";
-      document.getElementById("duration").value = 30;
-      document.getElementById("durationUnit").value = "minutes";
-      document.getElementById("url").value = "";
-      document.getElementById("column").value = "main";
-      document.getElementById("notes").value = "";
+    function deleteVideo(type, id) {
+      state[type] = state[type].filter(item => item.id !== id);
+      saveState();
+      renderAll();
     }
 
-    function sortItems() {
-      items.sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+    function moveVideo(type, id, direction) {
+      const list = state[type];
+      const index = list.findIndex(item => item.id === id);
+      if (index < 0) return;
+
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= list.length) return;
+
+      [list[index], list[newIndex]] = [list[newIndex], list[index]];
+      saveState();
+      renderAll();
     }
 
-    function editItem(id) {
-      const item = items.find(x => x.id === id);
-      if (!item) return;
-
-      editId = id;
-      document.getElementById("type").value = item.type;
-      document.getElementById("title").value = item.title;
-      document.getElementById("start").value = item.start;
-      document.getElementById("duration").value = item.duration;
-      document.getElementById("durationUnit").value = item.durationUnit || "minutes";
-      document.getElementById("url").value = item.url || "";
-      document.getElementById("column").value = item.column || "main";
-      document.getElementById("notes").value = item.notes || "";
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    function durationSeconds(item) {
+      return item.unit === "minutes" ? Number(item.duration) * 60 : Number(item.duration);
     }
 
-    function deleteItem(id) {
-      if (!confirm("Να διαγραφεί αυτό το πρόγραμμα;")) return;
-      items = items.filter(x => x.id !== id);
-      saveItems();
-      render();
+    function secondsToLabel(seconds) {
+      if (seconds < 60) return seconds + " sec";
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return s ? `${m} λεπτά ${s} sec` : `${m} λεπτά`;
     }
 
-    function duplicateItem(id) {
-      const item = items.find(x => x.id === id);
-      if (!item) return;
+    function timeToSeconds(value) {
+      const [h, m] = value.split(":").map(Number);
+      return h * 3600 + m * 60;
+    }
 
-      const copy = {
-        ...item,
-        id: uid(),
-        title: item.title + " copy",
-        start: endTimeOf(item)
+    function secondsToTime(total) {
+      total = ((Math.round(total) % 86400) + 86400) % 86400;
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+    }
+
+    function getSettingsFromUi() {
+      state.settings.startTime = document.getElementById("startTime").value || "15:00";
+      state.settings.identBefore = document.getElementById("identBefore").value;
+      state.settings.identAfter = document.getElementById("identAfter").value;
+      state.settings.playMode = document.getElementById("playMode").value;
+      saveState();
+    }
+
+    function firstIdent() {
+      return state.ident[0] || null;
+    }
+
+    function firstAd(index) {
+      if (state.ad.length === 0) return null;
+      return state.ad[index % state.ad.length];
+    }
+
+    function cloneAsScheduleItem(item, forcedType) {
+      return {
+        sourceId: item.id,
+        type: forcedType || item.type,
+        title: item.title,
+        url: item.url,
+        duration: item.duration,
+        unit: item.unit,
+        seconds: durationSeconds(item)
       };
-
-      items.push(copy);
-      sortItems();
-      saveItems();
-      render();
     }
 
-    function hasConflict(item, list) {
-      if (item.type === "ident") return false;
+    function buildTimeline() {
+      getSettingsFromUi();
 
-      const start = timeToMinutes(item.start);
-      const end = start + toMinutes(item.duration, item.durationUnit);
+      const timeline = [];
+      const ident = firstIdent();
+      let adIndex = 0;
+      let cursor = timeToSeconds(state.settings.startTime);
 
-      return list.some(other => {
-        if (other.id === item.id) return false;
-        if (other.type === "ident") return false;
-        if ((other.column || "main") !== (item.column || "main")) return false;
-
-        const oStart = timeToMinutes(other.start);
-        const oEnd = oStart + toMinutes(other.duration, other.durationUnit);
-        return start < oEnd && end > oStart;
-      });
-    }
-
-    function currentlyPlaying(item) {
-      const now = new Date();
-      const nowMinutes = now.getHours() * 60 + now.getMinutes();
-      const start = timeToMinutes(item.start);
-      const end = start + toMinutes(item.duration, item.durationUnit);
-      return nowMinutes >= start && nowMinutes < end;
-    }
-
-    function render() {
-      sortItems();
-      const tbody = document.getElementById("scheduleBody");
-      const search = document.getElementById("search").value.toLowerCase();
-      const filterColumn = document.getElementById("filterColumn").value;
-
-      tbody.innerHTML = "";
-
-      const filtered = items.filter(item => {
-        const haystack = [
-          item.title,
-          item.type,
-          typeLabels[item.type],
-          item.column,
-          columnLabels[item.column],
-          item.url,
-          item.notes
-        ].join(" ").toLowerCase();
-
-        const matchesSearch = haystack.includes(search);
-        const matchesColumn = filterColumn === "all" || item.column === filterColumn;
-        return matchesSearch && matchesColumn;
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="small">Δεν υπάρχει πρόγραμμα ακόμα.</td></tr>`;
+      function push(item, typeOverride) {
+        if (!item) return;
+        const entry = cloneAsScheduleItem(item, typeOverride);
+        entry.start = secondsToTime(cursor);
+        entry.end = secondsToTime(cursor + entry.seconds);
+        timeline.push(entry);
+        cursor += entry.seconds;
       }
 
-      filtered.forEach(item => {
-        const tr = document.createElement("tr");
-        if (currentlyPlaying(item)) tr.classList.add("now");
+      state.show.forEach(show => {
+        const mode = state.settings.playMode;
 
-        const conflict = hasConflict(item, items);
-        const end = endTimeOf(item);
-        const durationText = item.durationUnit === "seconds" ? `${item.duration}s` : `${item.duration}'`;
+        if (mode === "show-ident-ad") {
+          push(show, "show");
+          push(ident, "ident");
+          push(firstAd(adIndex++), "ad");
+          return;
+        }
 
-        tr.innerHTML = `
-          <td>
-            <strong>${item.start} - ${end}</strong><br />
-            <span class="small">${durationText}</span>
-            ${conflict ? `<div class="conflict">Σύγκρουση ώρας</div>` : ""}
-          </td>
-          <td><span class="tag tag-${item.type}">${typeLabels[item.type] || item.type}</span></td>
-          <td>
-            <strong>${escapeHtml(item.title)}</strong><br />
-            <span class="small">${escapeHtml(item.url || "χωρίς URL")}</span>
-            ${item.notes ? `<br /><span class="small">${escapeHtml(item.notes)}</span>` : ""}
-          </td>
-          <td>${columnLabels[item.column] || item.column}</td>
-          <td>
-            <div class="actions">
-              <button class="secondary" onclick="editItem('${item.id}')">Edit</button>
-              <button class="secondary" onclick="duplicateItem('${item.id}')">Copy</button>
-              <button class="danger" onclick="deleteItem('${item.id}')">X</button>
-            </div>
-          </td>
-        `;
+        if (mode === "ident-show-ad-ident") {
+          push(ident, "ident");
+          push(show, "show");
+          push(firstAd(adIndex++), "ad");
+          push(ident, "ident");
+          return;
+        }
 
-        tbody.appendChild(tr);
+        if (mode === "show-only-with-ident") {
+          if (state.settings.identBefore === "yes") push(ident, "ident");
+          push(show, "show");
+          if (state.settings.identAfter === "yes") push(ident, "ident");
+        }
       });
 
-      updatePreview();
+      return timeline;
+    }
+
+    function typeLabel(type) {
+      if (type === "show") return "ΕΚΠΟΜΠΗ";
+      if (type === "ident") return "IDENT";
+      if (type === "ad") return "ΔΙΑΦΗΜΙΣΗ";
+      return type;
+    }
+
+    function typeClass(type) {
+      if (type === "show") return "type-show";
+      if (type === "ident") return "type-ident";
+      if (type === "ad") return "type-ad";
+      return "";
+    }
+
+    function renderLists() {
+      renderList("show", "showList");
+      renderList("ident", "identList");
+      renderList("ad", "adList");
+    }
+
+    function renderList(type, elementId) {
+      const box = document.getElementById(elementId);
+      const list = state[type];
+
+      if (!list.length) {
+        box.innerHTML = `<div class="small">Δεν έχεις βάλει ακόμα βίντεο.</div>`;
+        return;
+      }
+
+      box.innerHTML = list.map((item, index) => `
+        <div class="video-item">
+          <strong>${escapeHtml(item.title)}</strong>
+          <div class="small">${escapeHtml(item.url)}</div>
+          <div class="small">Διάρκεια: ${secondsToLabel(durationSeconds(item))}</div>
+          <div class="actions" style="margin-top:8px;">
+            <button class="gray" onclick="moveVideo('${type}', '${item.id}', -1)">↑</button>
+            <button class="gray" onclick="moveVideo('${type}', '${item.id}', 1)">↓</button>
+            <button class="red" onclick="deleteVideo('${type}', '${item.id}')">Διαγραφή</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderTimeline() {
+      const timeline = buildTimeline();
+      const body = document.getElementById("timelineBody");
+
+      if (!timeline.length) {
+        body.innerHTML = `<tr><td colspan="5" class="small">Βάλε τουλάχιστον μία εκπομπή για να εμφανιστεί πρόγραμμα.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = timeline.map(item => `
+        <tr>
+          <td><strong>${item.start} - ${item.end}</strong></td>
+          <td><span class="type-pill ${typeClass(item.type)}">${typeLabel(item.type)}</span></td>
+          <td>${escapeHtml(item.title)}</td>
+          <td>${secondsToLabel(item.seconds)}</td>
+          <td class="small">${escapeHtml(item.url)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function buildM3U8() {
+      const timeline = buildTimeline();
+      let output = "#EXTM3U\n";
+      output += "#PLAYLIST:Scheduled TV Playlist\n";
+      output += "#TIMEZONE:Europe/Athens\n";
+      output += `#START:${state.settings.startTime}\n`;
+      output += "\n";
+
+      timeline.forEach(item => {
+        output += `#EXT-X-PROGRAM-DATETIME:${item.start}\n`;
+        output += `#EXTINF:${item.seconds},${item.start} - ${item.end} | ${typeLabel(item.type)} | ${item.title}\n`;
+        output += `#TVSCHED:type=${item.type};start=${item.start};end=${item.end};title=${safeAttr(item.title)}\n`;
+        output += `${item.url}\n\n`;
+      });
+
+      return output;
+    }
+
+    function renderPreview() {
+      document.getElementById("m3uPreview").textContent = buildM3U8();
+    }
+
+    function renderAll() {
+      restoreSettingsToState();
+      renderLists();
+      renderTimeline();
+      renderPreview();
+    }
+
+    function restoreSettingsToState() {
+      const s = state.settings || defaultState().settings;
+      document.getElementById("startTime").value = s.startTime || "15:00";
+      document.getElementById("identBefore").value = s.identBefore || "yes";
+      document.getElementById("identAfter").value = s.identAfter || "yes";
+      document.getElementById("playMode").value = s.playMode || "ident-show-ad-ident";
+    }
+
+    function downloadM3U8() {
+      const content = buildM3U8();
+      const blob = new Blob([content], { type: "application/vnd.apple.mpegurl" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "scheduled_playlist.m3u8";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearAll() {
+      if (!confirm("Να σβηστούν όλα τα βίντεο;")) return;
+      state = defaultState();
+      saveState();
+      renderAll();
     }
 
     function escapeHtml(value) {
@@ -688,144 +744,12 @@
         .replaceAll("'", "&#039;");
     }
 
-    function buildSchedulerJson() {
-      return {
-        timezone: "Europe/Athens",
-        generatedAt: new Date().toISOString(),
-        ident: loadIdentSettings(),
-        items: items.map(item => ({
-          start: item.start,
-          end: endTimeOf(item),
-          type: item.type,
-          title: item.title,
-          url: item.url,
-          column: item.column,
-          durationSeconds: toSeconds(item.duration, item.durationUnit),
-          notes: item.notes || ""
-        }))
-      };
+    function safeAttr(value) {
+      return String(value || "").replaceAll(";", ",").replaceAll("\n", " ");
     }
 
-    function updatePreview() {
-      document.getElementById("jsonPreview").textContent = JSON.stringify(buildSchedulerJson(), null, 2);
-    }
-
-    function downloadFile(filename, content, mime) {
-      const blob = new Blob([content], { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    function downloadScheduleJson() {
-      downloadFile("schedule.json", JSON.stringify(buildSchedulerJson(), null, 2), "application/json");
-    }
-
-    function downloadM3U() {
-      let output = "#EXTM3U\n";
-
-      items.forEach(item => {
-        const seconds = toSeconds(item.duration, item.durationUnit);
-        output += `#EXTINF:${seconds},${item.start} - ${item.title}\n`;
-        output += `#TVSCHED:type=${item.type};start=${item.start};end=${endTimeOf(item)};column=${item.column}\n`;
-        output += `${item.url || "# NO URL"}\n`;
-      });
-
-      downloadFile("program_playlist.m3u", output, "audio/x-mpegurl");
-    }
-
-    function clearSchedule() {
-      if (!confirm("Να διαγραφεί όλο το πρόγραμμα;")) return;
-      items = [];
-      saveItems();
-      render();
-    }
-
-    function autoInsertIdents() {
-      const settings = loadIdentSettings();
-      if (!settings.url) {
-        alert("Πρώτα βάλε και αποθήκευσε ident URL.");
-        return;
-      }
-
-      const identMinutes = toMinutes(settings.duration, settings.unit);
-      const normalItems = items.filter(item => item.type !== "ident");
-
-      const newIdents = [];
-
-      normalItems.forEach(item => {
-        const startMin = timeToMinutes(item.start);
-        const endMin = timeToMinutes(endTimeOf(item));
-
-        const beforeStart = minutesToTime(startMin - identMinutes);
-        const afterStart = minutesToTime(endMin);
-
-        newIdents.push({
-          id: uid(),
-          type: "ident",
-          title: "Ident πριν: " + item.title,
-          start: beforeStart,
-          duration: settings.duration,
-          durationUnit: settings.unit,
-          url: settings.url,
-          column: item.column || "main",
-          notes: "Αυτόματο ident πριν το πρόγραμμα"
-        });
-
-        newIdents.push({
-          id: uid(),
-          type: "ident",
-          title: "Ident μετά: " + item.title,
-          start: afterStart,
-          duration: settings.duration,
-          durationUnit: settings.unit,
-          url: settings.url,
-          column: item.column || "main",
-          notes: "Αυτόματο ident μετά το πρόγραμμα"
-        });
-      });
-
-      items = items.filter(item => item.type !== "ident");
-      items.push(...newIdents);
-      sortItems();
-      saveItems();
-      render();
-    }
-
-    function quickAdBlock() {
-      const start = document.getElementById("adTime").value;
-      const duration = Number(document.getElementById("adDuration").value);
-
-      if (!start || !duration) {
-        alert("Βάλε ώρα και διάρκεια διαφημίσεων.");
-        return;
-      }
-
-      items.push({
-        id: uid(),
-        type: "ads",
-        title: "Διαφημιστικό block",
-        start,
-        duration,
-        durationUnit: "minutes",
-        url: "",
-        column: "ads",
-        notes: "Γρήγορη προσθήκη διαφημίσεων"
-      });
-
-      sortItems();
-      saveItems();
-      render();
-    }
-
-    restoreIdentFields();
-    render();
-    setInterval(render, 30000);
+    restoreSettingsToState();
+    renderAll();
   </script>
 </body>
 </html>
