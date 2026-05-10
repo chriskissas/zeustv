@@ -315,7 +315,13 @@
       readUiSettings();
       const timeline = [];
       const cursor = { value: clockToSec(state.settings.startTime) };
-      const ident = state.ident[0] || null;
+      let identIndex = 0;
+      function nextIdent() {
+        if (!state.ident.length) return null;
+        const item = state.ident[identIndex % state.ident.length];
+        identIndex++;
+        return item;
+      }
       const teleStart = state.teleStart[0] || null;
       const teleEnd = state.teleEnd[0] || null;
       const ads = shuffle(state.ad);
@@ -327,10 +333,10 @@
 
       state.show.forEach(function(show) {
         const mode = state.settings.playMode;
-        if (mode === 'ident-show-ad') { pushEntry(timeline, cursor, ident, 'ident'); pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, nextAd(), 'ad'); }
-        if (mode === 'ident-show-ad-ident') { pushEntry(timeline, cursor, ident, 'ident'); pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, nextAd(), 'ad'); pushEntry(timeline, cursor, ident, 'ident'); }
-        if (mode === 'show-ident-ad') { pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, ident, 'ident'); pushEntry(timeline, cursor, nextAd(), 'ad'); }
-        if (mode === 'show-ident') { pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, ident, 'ident'); }
+        if (mode === 'ident-show-ad') { pushEntry(timeline, cursor, nextIdent(), 'ident'); pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, nextAd(), 'ad'); }
+        if (mode === 'ident-show-ad-ident') { pushEntry(timeline, cursor, nextIdent(), 'ident'); pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, nextAd(), 'ad'); pushEntry(timeline, cursor, nextIdent(), 'ident'); }
+        if (mode === 'show-ident-ad') { pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, nextIdent(), 'ident'); pushEntry(timeline, cursor, nextAd(), 'ad'); }
+        if (mode === 'show-ident') { pushEntry(timeline, cursor, show, 'show'); pushEntry(timeline, cursor, nextIdent(), 'ident'); }
         if (state.settings.teleAfter === show.uid) { teleBlock(); teleDone = true; }
       });
       if (!teleDone && state.settings.teleAfter === 'end') teleBlock();
@@ -369,7 +375,7 @@
     function buildM3U8() {
       const t = buildTimeline();
       // ΑΠΛΗ ΛΙΣΤΑ ΓΙΑ VMIX:
-      // Μόνο γραμμές τύπου \video.mp4
+      // Μόνο γραμμές τύπου ideo.mp4
       // Χωρίς #EXTM3U, χωρίς #EXTINF, χωρίς metadata.
       return t.map(function(x) {
         return x.path;
